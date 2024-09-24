@@ -39,7 +39,6 @@ import org.firstinspires.ftc.teamcode.backend.subsystems.CameraSubsystem;
 import org.firstinspires.ftc.teamcode.backend.subsystems.DrivetrainSubsystem;
 import org.firstinspires.ftc.teamcode.backend.subsystems.DroneSubsystem;
 import org.firstinspires.ftc.teamcode.backend.subsystems.IntakeSubsystem;
-import org.firstinspires.ftc.teamcode.backend.subsystems.PurplePixelSubsystem;
 import org.firstinspires.ftc.teamcode.backend.subsystems.SlidesSubsystem;
 import org.firstinspires.ftc.teamcode.backend.subsystems.WristSubsystem;
 
@@ -53,7 +52,6 @@ public class Robot19397 extends Robot {
     public final SlidesSubsystem slides;
     public final DrivetrainSubsystem drivetrain;
     public final WristSubsystem wrist;
-    public final PurplePixelSubsystem purplePixel;
     public final DroneSubsystem drone;
     public final CameraSubsystem camera;
 
@@ -69,7 +67,6 @@ public class Robot19397 extends Robot {
         this.intake = new IntakeSubsystem();
         this.slides = new SlidesSubsystem();
         this.wrist = new WristSubsystem();
-        this.purplePixel = new PurplePixelSubsystem();
         this.drone = new DroneSubsystem();
         this.camera = new CameraSubsystem();
     }
@@ -92,8 +89,6 @@ public class Robot19397 extends Robot {
         CommandScheduler.getInstance().registerSubsystem(this.slides);
         wrist.init(timer, hwMap, isTeleop);
         CommandScheduler.getInstance().registerSubsystem(this.wrist);
-        purplePixel.init(timer, hwMap, isTeleop);
-        CommandScheduler.getInstance().registerSubsystem(this.purplePixel);
         drone.init(timer, hwMap, isTeleop);
         CommandScheduler.getInstance().registerSubsystem(this.drone);
         camera.init(hwMap, isTeleop);
