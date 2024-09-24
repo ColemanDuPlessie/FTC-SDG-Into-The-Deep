@@ -4,7 +4,6 @@ import static java.lang.Thread.sleep;
 
 import android.util.Size;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
@@ -18,10 +17,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.SetDrivingStyle;
 import org.firstinspires.ftc.teamcode.backend.cv.AprilTagProcessorWithDash;
-import org.firstinspires.ftc.teamcode.backend.cv.TeamPropProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
-import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 public class CameraSubsystem extends SubsystemBase {
 
     private AprilTagProcessorWithDash aprilTag;
-    private TeamPropProcessor propProcessor;
     private VisionPortal visionPortal;
 
     boolean teleop;
@@ -61,19 +57,12 @@ public class CameraSubsystem extends SubsystemBase {
         builder.setAutoStopLiveView(true);
         builder.addProcessor(aprilTag);
 
-        if (!isTeleop) {
-            propProcessor = new TeamPropProcessor(SetDrivingStyle.isBlue);
-            builder.addProcessor(propProcessor);
-        }
-
         visionPortal = builder.build();
 
         if (isTeleop) {
             visionPortal.setProcessorEnabled(aprilTag, true);
         } else {
             visionPortal.setProcessorEnabled(aprilTag, false);
-            visionPortal.setProcessorEnabled(propProcessor, true);
-            FtcDashboard.getInstance().startCameraStream(propProcessor, 0);
         }
 
 /*
@@ -86,14 +75,6 @@ public class CameraSubsystem extends SubsystemBase {
         }
         setManualExposure(6, 250); // TODO tune
 */
-    }
-
-    public TeamPropProcessor.PROP_POSITION getPropPosition() {
-        return propProcessor.getCurrentPosition();
-    }
-
-    public double getPropConfidence() {
-        return propProcessor.getCurrentConfidence();
     }
 
     public List<AprilTagDetection> getRawTagDetections() {
@@ -149,11 +130,6 @@ public class CameraSubsystem extends SubsystemBase {
     public void stopATag() {visionPortal.setProcessorEnabled(aprilTag, false);}
     public void startATag() {visionPortal.setProcessorEnabled(aprilTag, true);}
     public void killCamera() {visionPortal.close();}
-
-    public void propDetected() {
-        visionPortal.setProcessorEnabled(propProcessor, false);
-        visionPortal.setProcessorEnabled(aprilTag, true);
-    }
 
     @Override
     public void periodic() {

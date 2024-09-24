@@ -34,8 +34,6 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.backend.CommandbasedOpmode;
-import org.firstinspires.ftc.teamcode.backend.commands.ArmAwareIncrementSlides;
-import org.firstinspires.ftc.teamcode.backend.commands.ArmAwareSetSlides;
 import org.firstinspires.ftc.teamcode.backend.commands.DriveFromGamepad;
 import org.firstinspires.ftc.teamcode.backend.commands.RetractHang;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -69,30 +67,30 @@ public class Teleop extends CommandbasedOpmode {
 
         if (SetDrivingStyle.memorizedSlidePosition) {
             gamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
-                    .whenReleased(new ArmAwareSetSlides(robot.slides, robot.arm, robot.wrist, 0.0, timer, robot.intake));
+                    .whenReleased(() -> robot.slides.setTargetPosition(0.0));
             gamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
-                    .whenReleased(() -> scheduler.schedule(new ArmAwareSetSlides(robot.slides, robot.arm, robot.wrist, slidesSetpoint, timer, robot.intake)));
+                    .whenReleased(() -> robot.slides.setTargetPosition(slidesSetpoint));
             gamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
                     .whenReleased(() -> {
                         slidesSetpoint += slidesSetpointStep;
                         slidesSetpoint = Math.min(1.0, Math.max(0.3, slidesSetpoint));
-                        scheduler.schedule(new ArmAwareSetSlides(robot.slides, robot.arm, robot.wrist, slidesSetpoint, timer, robot.intake));
+                        robot.slides.setTargetPosition(slidesSetpoint);
                     });
             gamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT)
                     .whenReleased(() -> {
                         slidesSetpoint -= slidesSetpointStep;
                         slidesSetpoint = Math.min(1.0, Math.max(0.3, slidesSetpoint));
-                        scheduler.schedule(new ArmAwareSetSlides(robot.slides, robot.arm, robot.wrist, slidesSetpoint, timer, robot.intake));
+                        robot.slides.setTargetPosition(slidesSetpoint);
                     });
         } else {
             gamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
-                    .whenReleased(new ArmAwareSetSlides(robot.slides, robot.arm, robot.wrist, 0.0, timer, robot.intake));
+                    .whenReleased(() -> robot.slides.setTargetPosition(0.0));
             gamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
-                    .whenReleased(new ArmAwareSetSlides(robot.slides, robot.arm, robot.wrist, 0.5, timer, robot.intake));
+                    .whenReleased(() -> robot.slides.setTargetPosition(0.5));
             gamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
-                    .whenReleased(() -> scheduler.schedule(new ArmAwareIncrementSlides(robot.slides, robot.arm, robot.wrist, 0.1, timer, robot.intake)));
+                    .whenReleased(() -> robot.slides.incrementTargetPosition(0.1));
             gamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT)
-                    .whenReleased(() -> scheduler.schedule(new ArmAwareIncrementSlides(robot.slides, robot.arm, robot.wrist, -0.1, timer, robot.intake)));
+                    .whenReleased(() -> robot.slides.incrementTargetPosition(-0.1));
         }
 
     }
@@ -106,9 +104,6 @@ public class Teleop extends CommandbasedOpmode {
         telemetry.addData("Slides actual position", robot.slides.getPosition());
         telemetry.addData("Arm target position", robot.arm.getTargetPosition());
         telemetry.addData("Arm actual position", robot.arm.getPosition());
-        if (scheduler.requiring(robot.slides) instanceof ArmAwareSetSlides) {
-            ((ArmAwareSetSlides) scheduler.requiring(robot.slides)).debug(telemetry);
-        }
         for (AprilTagDetection det:robot.camera.getRawTagDetections()) {
             if (det == null || det.ftcPose == null) {continue;}
             telemetry.addLine();
