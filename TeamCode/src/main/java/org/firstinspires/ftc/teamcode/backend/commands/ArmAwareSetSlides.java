@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.backend.subsystems.ArmSubsystem;
-import org.firstinspires.ftc.teamcode.backend.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.backend.subsystems.ClawSubsystem;
 import org.firstinspires.ftc.teamcode.backend.subsystems.SlidesSubsystem;
 import org.firstinspires.ftc.teamcode.backend.subsystems.WristSubsystem;
 
@@ -25,7 +25,7 @@ public class ArmAwareSetSlides extends CommandBase {
     private ArmSubsystem arm;
     private WristSubsystem wrist;
 
-    private IntakeSubsystem intake = null;
+    private ClawSubsystem intake = null;
     public static long intakeRuntime = 500;
     public static double intakePower = -0.30;
     public static double intakeEnablePoint = 0.10;
@@ -47,7 +47,7 @@ public class ArmAwareSetSlides extends CommandBase {
         this.timer = timer;
     }
 
-    public ArmAwareSetSlides(SlidesSubsystem s, ArmSubsystem a, WristSubsystem w, double targetPos, ElapsedTime timer, IntakeSubsystem i) {
+    public ArmAwareSetSlides(SlidesSubsystem s, ArmSubsystem a, WristSubsystem w, double targetPos, ElapsedTime timer, ClawSubsystem i) {
         this(s, a ,w, targetPos, timer);
         if (targetPos < intakeEnablePoint) {
             intake = i;
@@ -67,11 +67,11 @@ public class ArmAwareSetSlides extends CommandBase {
             slides.setTargetPosition(targetPos);
         } else if (startPos > changeoverPosition && targetPos < changeoverPosition) {
             arm.holding();
-            wrist.holding();
+            wrist.center();
             waitToLower = true;
         } else if (targetPos < changeoverPosition) {
             arm.holding();
-            wrist.holding();
+            wrist.center();
             slides.setTargetPosition(targetPos);
         } else {
             arm.center();

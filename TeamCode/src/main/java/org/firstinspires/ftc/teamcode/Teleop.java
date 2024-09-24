@@ -36,16 +36,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.backend.CommandbasedOpmode;
 import org.firstinspires.ftc.teamcode.backend.commands.ArmAwareIncrementSlides;
 import org.firstinspires.ftc.teamcode.backend.commands.ArmAwareSetSlides;
-import org.firstinspires.ftc.teamcode.backend.commands.AutoTargetBackdrop;
 import org.firstinspires.ftc.teamcode.backend.commands.DriveFromGamepad;
-import org.firstinspires.ftc.teamcode.backend.commands.DriverAssistedAutoTargetedDeposit;
-import org.firstinspires.ftc.teamcode.backend.commands.DriverAssistedDeposit;
-import org.firstinspires.ftc.teamcode.backend.commands.EnableIntakeSafe;
-import org.firstinspires.ftc.teamcode.backend.commands.ReadyArmCarefully;
 import org.firstinspires.ftc.teamcode.backend.commands.RetractHang;
-import org.firstinspires.ftc.teamcode.backend.subsystems.ArmSubsystem;
-import org.firstinspires.ftc.teamcode.backend.subsystems.IntakeSubsystem;
-import org.firstinspires.ftc.teamcode.backend.subsystems.WristSubsystem;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 
@@ -61,68 +53,8 @@ public class Teleop extends CommandbasedOpmode {
         robot.init(hardwareMap, true);
     }
 
-    private void setIntakeArmPosition() {
-        if (robot.slides.getTargetPosition() > 0.05) {return;}
-        if (robot.intake.getCurrentSpeed() == 0) {
-            robot.arm.holding();
-            robot.wrist.holding();
-        } else {
-            robot.arm.down();
-            robot.wrist.down();
-        }
-    }
-
-    private void toggleDropdown() {
-        if (Math.abs(robot.intake.getCurrentDropdownPos() - IntakeSubsystem.dropdownUpPos) <= 0.05) {
-            robot.intake.lowerDropdown(dropdownSetpoint);
-        } else {
-            robot.intake.raiseDropdown();
-        }
-    }
-
-    private void toggleArm() {
-        if (robot.arm.getTargetPosition() == ArmSubsystem.waitingPosition) {
-            scheduler.schedule(new ReadyArmCarefully(robot.arm, robot.wrist, timer, robot.slides.getPosition() <= 0.35));
-        } else {
-            robot.arm.toggle();
-            robot.wrist.toggle();
-        }
-    }
-
-    private void xPressed() {
-        if (pad1.getY()) {
-            scheduler.schedule(new DriverAssistedAutoTargetedDeposit(robot.arm, robot.wrist, timer, robot.slides, robot.intake));
-        } else if (robot.wrist.getTargetPosition() == WristSubsystem.readyPosition) {
-            scheduler.schedule(new DriverAssistedDeposit(robot.arm, robot.wrist, timer, robot.slides, robot.intake));
-        } else {
-            toggleArm();
-        }
-    }
-
-    private void toggleIntake(boolean isReversed) {
-        if (robot.arm.getTargetPosition() == ArmSubsystem.downPosition || robot.arm.getTargetPosition() == ArmSubsystem.downWaitingPosition) {
-            if (robot.intake.getCurrentSpeed() == 0.0) {
-                scheduler.schedule(new EnableIntakeSafe(robot.intake, robot.arm, robot.wrist, timer, isReversed));
-                return;
-            } else if ((robot.intake.getCurrentSpeed() > 0.0) == isReversed) {
-                robot.intake.setSpeed(0.0);
-                scheduler.schedule(new EnableIntakeSafe(robot.intake, robot.arm, robot.wrist, timer, isReversed));
-                return;
-            } else {
-                robot.arm.toggle();
-                robot.wrist.toggle();
-            }
-        }
-        if (isReversed) {
-            robot.intake.toggleOuttake();
-        } else {
-            robot.intake.toggleIntake();
-        }
-    }
-
     private double slidesSetpoint = 0.3;
     private double slidesSetpointStep = 0.1;
-    private int dropdownSetpoint = 4; // Min = 0, Max = 4
 
     @Override
     public void start() {
@@ -133,9 +65,7 @@ public class Teleop extends CommandbasedOpmode {
         gamepad.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON)
                 .whenReleased(robot.slides::hang);
         gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_STICK_BUTTON)
-                .whenReleased(() -> {robot.drone.activate();
-                scheduler.schedule(new RetractHang(robot.slides, timer)); // RetractHang only does things if we're already in hanging position
-                });
+                .whenReleased(new RetractHang(robot.slides, timer)); // RetractHang only does things if we're already in hanging position
 
         if (SetDrivingStyle.memorizedSlidePosition) {
             gamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
@@ -165,24 +95,6 @@ public class Teleop extends CommandbasedOpmode {
                     .whenReleased(() -> scheduler.schedule(new ArmAwareIncrementSlides(robot.slides, robot.arm, robot.wrist, -0.1, timer, robot.intake)));
         }
 
-        gamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-                .whenReleased(() -> {dropdownSetpoint = Math.max(0, dropdownSetpoint-1); robot.intake.lowerDropdown(dropdownSetpoint);});
-        gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenReleased(() -> {dropdownSetpoint = Math.min(4, dropdownSetpoint+1); robot.intake.lowerDropdown(dropdownSetpoint);});
-        // gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-        //         .whenReleased(this::toggleArm);
-
-        gamepad.getGamepadButton(GamepadKeys.Button.A)
-                .whenReleased(() -> toggleIntake(false));
-        gamepad.getGamepadButton(GamepadKeys.Button.X)
-                .whenReleased(this::xPressed);
-        gamepad.getGamepadButton(GamepadKeys.Button.B)
-                .whenReleased(() -> toggleIntake(true));
-        gamepad.getGamepadButton(GamepadKeys.Button.Y)
-                .whenReleased(this::toggleDropdown);
-        // gamepad.getGamepadButton(GamepadKeys.Button.Y)
-        //         .whenPressed(new AutoTargetBackdrop(robot.drivetrain, robot.camera, pad1, timer, robot.slides));
-
     }
 
     @Override
@@ -192,9 +104,8 @@ public class Teleop extends CommandbasedOpmode {
         telemetry.addData("Slides command", scheduler.requiring(robot.slides));
         telemetry.addData("Slides target position", robot.slides.getTargetPosition());
         telemetry.addData("Slides actual position", robot.slides.getPosition());
-        if (scheduler.requiring(robot.drivetrain) instanceof AutoTargetBackdrop) {
-            ((AutoTargetBackdrop) scheduler.requiring(robot.drivetrain)).debug(telemetry);
-        }
+        telemetry.addData("Arm target position", robot.arm.getTargetPosition());
+        telemetry.addData("Arm actual position", robot.arm.getPosition());
         if (scheduler.requiring(robot.slides) instanceof ArmAwareSetSlides) {
             ((ArmAwareSetSlides) scheduler.requiring(robot.slides)).debug(telemetry);
         }
