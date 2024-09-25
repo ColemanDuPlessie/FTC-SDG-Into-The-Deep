@@ -34,6 +34,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.backend.CommandbasedOpmode;
+import org.firstinspires.ftc.teamcode.backend.commands.ControlWrist;
 import org.firstinspires.ftc.teamcode.backend.commands.DriveFromGamepad;
 import org.firstinspires.ftc.teamcode.backend.commands.RetractHang;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -59,6 +60,8 @@ public class Teleop extends CommandbasedOpmode {
         scheduler.setDefaultCommand(robot.drivetrain, new DriveFromGamepad(robot.drivetrain, pad1, SetDrivingStyle.isFieldCentric));
 
         GamepadEx gamepad = new GamepadEx(gamepad1);
+
+        scheduler.setDefaultCommand(robot.wrist, new ControlWrist(robot.wrist, gamepad, gamepad.getGamepadButton(GamepadKeys.Button.Y)));
 
         gamepad.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON)
                 .whenReleased(robot.slides::hang);
@@ -93,27 +96,25 @@ public class Teleop extends CommandbasedOpmode {
                     .whenReleased(() -> robot.slides.incrementTargetPosition(-0.1));
         }
 
+        gamepad.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
+                .whenReleased(() -> robot.arm.incrementTargetPosition(-0.05));
+        gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
+                .whenReleased(() -> robot.arm.incrementTargetPosition(0.05));
+
+        gamepad.getGamepadButton(GamepadKeys.Button.A)
+                .whenReleased(robot.claw::close);
+        gamepad.getGamepadButton(GamepadKeys.Button.X)
+                .whenReleased(robot.claw::open);
+        gamepad.getGamepadButton(GamepadKeys.Button.B)
+                .whenReleased(robot.claw::waiting);
+
     }
 
     @Override
     public void loop() {
-        telemetry.addData("Arm command", scheduler.requiring(robot.arm));
-        telemetry.addData("Drivetrain command", scheduler.requiring(robot.drivetrain));
-        telemetry.addData("Slides command", scheduler.requiring(robot.slides));
         telemetry.addData("Slides target position", robot.slides.getTargetPosition());
         telemetry.addData("Slides actual position", robot.slides.getPosition());
         telemetry.addData("Arm target position", robot.arm.getTargetPosition());
         telemetry.addData("Arm actual position", robot.arm.getPosition());
-        for (AprilTagDetection det:robot.camera.getRawTagDetections()) {
-            if (det == null || det.ftcPose == null) {continue;}
-            telemetry.addLine();
-            telemetry.addLine(String.format("April tag with id #%d detected at the following coordinates:", det.id));
-            telemetry.addData("X", det.ftcPose.x);
-            telemetry.addData("Y", det.ftcPose.y);
-            telemetry.addData("Z", det.ftcPose.z);
-            telemetry.addData("Pitch", det.ftcPose.pitch);
-            telemetry.addData("Yaw", det.ftcPose.yaw);
-            telemetry.addData("Roll", det.ftcPose.roll);
-        }
     }
 }

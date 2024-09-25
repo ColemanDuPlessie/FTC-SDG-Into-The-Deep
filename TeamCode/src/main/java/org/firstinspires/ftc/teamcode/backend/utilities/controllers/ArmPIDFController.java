@@ -18,7 +18,7 @@ public class ArmPIDFController extends PIDController {
     public double update(double currVal, double targetVal) {
         double PIDPower = super.update(currVal, targetVal);
         double gravityFF = kGrav * Math.cos((currVal - horizTicks)/(vertTicks-horizTicks)*Math.PI/2);
-        return  PIDPower + gravityFF;
+        return PIDPower + gravityFF;
     }
 
 }

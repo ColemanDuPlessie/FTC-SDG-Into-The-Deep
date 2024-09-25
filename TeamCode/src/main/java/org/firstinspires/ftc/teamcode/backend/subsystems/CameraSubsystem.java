@@ -13,10 +13,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.SetDrivingStyle;
-import org.firstinspires.ftc.teamcode.backend.cv.AprilTagProcessorWithDash;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
@@ -28,17 +25,17 @@ import java.util.concurrent.TimeUnit;
 @Config
 public class CameraSubsystem extends SubsystemBase {
 
-    private AprilTagProcessorWithDash aprilTag;
+    // private AprilTagProcessorWithDash aprilTag;
     private VisionPortal visionPortal;
 
     boolean teleop;
 
     public void init(HardwareMap ahwMap, boolean isTeleop) {
         teleop = isTeleop;
-        aprilTag = new AprilTagProcessorWithDash.Builder()
-                .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
-                .setLensIntrinsics(822.317, 822.317, 319.495, 242.502) // these parameters are fx, fy, cx, cy.
-                .build();
+        // aprilTag = new AprilTagProcessorWithDash.Builder()
+        //         .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
+        //         .setLensIntrinsics(822.317, 822.317, 319.495, 242.502) // these parameters are fx, fy, cx, cy.
+        //         .build();
 
         // Adjust Image Decimation to trade-off detection-range for detection-rate.
         // eg: Some typical detection data using a Logitech C920 WebCam
@@ -47,7 +44,7 @@ public class CameraSubsystem extends SubsystemBase {
         // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second (default)
         // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second (default)
         // Note: Decimation can be changed on-the-fly to adapt during a match.
-        aprilTag.setDecimation(3); // Lower decimation for higher detection range, but worse performance
+        // aprilTag.setDecimation(3); // Lower decimation for higher detection range, but worse performance
 
         VisionPortal.Builder builder = new VisionPortal.Builder();
         builder.setCamera(ahwMap.get(WebcamName.class, "Camera"));
@@ -55,14 +52,14 @@ public class CameraSubsystem extends SubsystemBase {
         builder.enableLiveView(true);
         builder.setStreamFormat(VisionPortal.StreamFormat.YUY2); // Alternative is MJPEG
         builder.setAutoStopLiveView(true);
-        builder.addProcessor(aprilTag);
+        // builder.addProcessor(aprilTag);
 
         visionPortal = builder.build();
 
         if (isTeleop) {
-            visionPortal.setProcessorEnabled(aprilTag, true);
+            // visionPortal.setProcessorEnabled(aprilTag, true);
         } else {
-            visionPortal.setProcessorEnabled(aprilTag, false);
+            // visionPortal.setProcessorEnabled(aprilTag, false);
         }
 
 /*
@@ -78,7 +75,7 @@ public class CameraSubsystem extends SubsystemBase {
     }
 
     public List<AprilTagDetection> getRawTagDetections() {
-        return aprilTag.getDetections();
+        return null;// aprilTag.getDetections();
     }
 
     public Pose2d getBackdropPosition() { // TODO
@@ -86,7 +83,7 @@ public class CameraSubsystem extends SubsystemBase {
          * Returns a pose2d whose origin is the center AprilTag and whose heading 0 is pointing
          * toward the backdrop. Note that we ignore a lot of heading info because it's unreliable
          */
-        List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+        List<AprilTagDetection> currentDetections = null; // aprilTag.getDetections();
         if (currentDetections.size() == 0) {
             return null;
         }
@@ -127,8 +124,8 @@ public class CameraSubsystem extends SubsystemBase {
 
     public void stopStream() {visionPortal.stopStreaming();}
     public void startStream() {visionPortal.resumeStreaming();}
-    public void stopATag() {visionPortal.setProcessorEnabled(aprilTag, false);}
-    public void startATag() {visionPortal.setProcessorEnabled(aprilTag, true);}
+    // public void stopATag() {visionPortal.setProcessorEnabled(aprilTag, false);}
+    // public void startATag() {visionPortal.setProcessorEnabled(aprilTag, true);}
     public void killCamera() {visionPortal.close();}
 
     @Override

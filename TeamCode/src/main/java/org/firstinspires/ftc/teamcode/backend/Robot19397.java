@@ -35,7 +35,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.backend.subsystems.ArmSubsystem;
-import org.firstinspires.ftc.teamcode.backend.subsystems.CameraSubsystem;
 import org.firstinspires.ftc.teamcode.backend.subsystems.DrivetrainSubsystem;
 import org.firstinspires.ftc.teamcode.backend.subsystems.ClawSubsystem;
 import org.firstinspires.ftc.teamcode.backend.subsystems.SlidesSubsystem;
@@ -47,11 +46,11 @@ import org.firstinspires.ftc.teamcode.backend.subsystems.WristSubsystem;
 public class Robot19397 extends Robot {
 
     public final ArmSubsystem arm;
-    public final ClawSubsystem intake;
+    public final ClawSubsystem claw;
     public final SlidesSubsystem slides;
     public final DrivetrainSubsystem drivetrain;
     public final WristSubsystem wrist;
-    public final CameraSubsystem camera;
+    // public final CameraSubsystem camera;
 
     /* local OpMode members. */
     HardwareMap hwMap;
@@ -62,10 +61,10 @@ public class Robot19397 extends Robot {
         this.timer = timer;
         this.drivetrain = new DrivetrainSubsystem();
         this.arm = new ArmSubsystem();
-        this.intake = new ClawSubsystem();
+        this.claw = new ClawSubsystem();
         this.slides = new SlidesSubsystem();
         this.wrist = new WristSubsystem();
-        this.camera = new CameraSubsystem();
+        // this.camera = new CameraSubsystem();
     }
 
     /* Initialize standard Hardware interfaces */
@@ -80,14 +79,14 @@ public class Robot19397 extends Robot {
         CommandScheduler.getInstance().registerSubsystem(this.drivetrain);
         arm.init(timer, hwMap, isTeleop);
         CommandScheduler.getInstance().registerSubsystem(this.arm);
-        intake.init(timer, hwMap, isTeleop);
-        CommandScheduler.getInstance().registerSubsystem(this.intake);
+        claw.init(timer, hwMap, isTeleop);
+        CommandScheduler.getInstance().registerSubsystem(this.claw);
         slides.init(timer, hwMap, isTeleop);
         CommandScheduler.getInstance().registerSubsystem(this.slides);
         wrist.init(timer, hwMap, isTeleop);
         CommandScheduler.getInstance().registerSubsystem(this.wrist);
-        camera.init(hwMap, isTeleop);
-        CommandScheduler.getInstance().registerSubsystem(this.camera);
+        // camera.init(hwMap, isTeleop);
+        // CommandScheduler.getInstance().registerSubsystem(this.camera);
     }
 
  }
