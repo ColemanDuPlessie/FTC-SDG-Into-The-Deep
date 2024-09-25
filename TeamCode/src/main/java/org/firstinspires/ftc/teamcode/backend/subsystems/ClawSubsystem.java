@@ -13,15 +13,15 @@ public class ClawSubsystem extends SubsystemBase implements PositionControlled {
 
     public ServoImpl servo;
 
-    public static double openPos = 0.60;
-    public static double closedPos = 0.40;
-    public static double waitingPos = 0.50;
+    public static double openPos = 0.65;
+    public static double closedPos = 0.90;
+    public static double waitingPos = 0.85;
 
     private double targetPosition;
 
     public void init(ElapsedTime aTimer, HardwareMap ahwMap) {
         servo = ahwMap.get(ServoImpl.class, "ClawServo");
-        servo.setPosition(waitingPos);
+        servo.setPosition(openPos);
     }
 
     public void init(ElapsedTime aTimer, HardwareMap ahwMap, boolean isTeleop) {

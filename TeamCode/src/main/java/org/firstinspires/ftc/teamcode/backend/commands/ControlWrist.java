@@ -16,7 +16,7 @@ import java.util.function.DoubleSupplier;
 public class ControlWrist extends CommandBase {
 
     public double targetPosition;
-    private double maxMoveSpeed = 0.002;
+    private double maxMoveSpeed = 0.01;
 
     private WristSubsystem wrist;
     private final GamepadEx triggers;
@@ -43,7 +43,7 @@ public class ControlWrist extends CommandBase {
     @Override
     public void execute() {
         double move_magnitude = triggers.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - triggers.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
-        targetPosition = Math.max(Math.min(1.0, targetPosition+move_magnitude*maxMoveSpeed), -1.0);
+        targetPosition = Math.max(Math.min(1.0, targetPosition+move_magnitude*maxMoveSpeed), 0.0);
         wrist.setTargetPosition(targetPosition);
     }
 
