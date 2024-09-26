@@ -22,16 +22,10 @@ public class ControlWrist extends CommandBase {
     private final GamepadEx triggers;
 
 
-    public ControlWrist(WristSubsystem w, GamepadEx triggers, GamepadButton resetButton) {
+    public ControlWrist(WristSubsystem w, GamepadEx triggers) {
         wrist = w;
         addRequirements(w);
         this.triggers = triggers;
-        resetButton.whenReleased(() -> this.resetPosition());
-        targetPosition = WristSubsystem.centerPosition;
-    }
-
-    public void resetPosition() {
-        wrist.center();
         targetPosition = WristSubsystem.centerPosition;
     }
 
@@ -42,7 +36,7 @@ public class ControlWrist extends CommandBase {
 
     @Override
     public void execute() {
-        double move_magnitude = triggers.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) - triggers.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER);
+        double move_magnitude = (triggers.getButton(GamepadKeys.Button.X) ? 1.0 : 0.0) - (triggers.getButton(GamepadKeys.Button.Y) ? 1.0 : 0.0);
         targetPosition = Math.max(Math.min(1.0, targetPosition+move_magnitude*maxMoveSpeed), 0.0);
         wrist.setTargetPosition(targetPosition);
     }

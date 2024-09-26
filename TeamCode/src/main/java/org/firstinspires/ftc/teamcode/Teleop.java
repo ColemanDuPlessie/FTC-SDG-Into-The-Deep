@@ -37,6 +37,7 @@ import org.firstinspires.ftc.teamcode.backend.CommandbasedOpmode;
 import org.firstinspires.ftc.teamcode.backend.commands.ControlWrist;
 import org.firstinspires.ftc.teamcode.backend.commands.DriveFromGamepad;
 import org.firstinspires.ftc.teamcode.backend.commands.RetractHang;
+import org.firstinspires.ftc.teamcode.backend.subsystems.ClawSubsystem;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 
@@ -46,6 +47,14 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 @TeleOp(name="Teleop (THIS ONE)")
 public class Teleop extends CommandbasedOpmode {
+
+    private void toggleClaw() {
+        if (robot.claw.getPosition() == ClawSubsystem.closedPos) {
+            robot.claw.open();
+        } else {
+            robot.claw.close();
+        }
+    }
 
     @Override
     public void init() {
@@ -61,7 +70,7 @@ public class Teleop extends CommandbasedOpmode {
 
         GamepadEx gamepad = new GamepadEx(gamepad1);
 
-        scheduler.setDefaultCommand(robot.wrist, new ControlWrist(robot.wrist, gamepad, gamepad.getGamepadButton(GamepadKeys.Button.Y)));
+        scheduler.setDefaultCommand(robot.wrist, new ControlWrist(robot.wrist, gamepad));
 
         gamepad.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON)
                 .whenReleased(robot.slides::hang);
@@ -102,9 +111,7 @@ public class Teleop extends CommandbasedOpmode {
                 .whenReleased(() -> robot.arm.incrementTargetPosition(0.05));
 
         gamepad.getGamepadButton(GamepadKeys.Button.A)
-                .whenReleased(robot.claw::close);
-        gamepad.getGamepadButton(GamepadKeys.Button.X)
-                .whenReleased(robot.claw::open);
+                .whenReleased(this::toggleClaw);
         gamepad.getGamepadButton(GamepadKeys.Button.B)
                 .whenReleased(robot.claw::waiting);
 
