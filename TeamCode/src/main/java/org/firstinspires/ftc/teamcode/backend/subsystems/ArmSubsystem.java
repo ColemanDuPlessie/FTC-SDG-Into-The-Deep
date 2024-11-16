@@ -20,7 +20,7 @@ public class ArmSubsystem extends SubsystemBase implements PositionControlled {
     private PIDController PIDF;
 
     public static int minPosition = 0;
-    public static int maxPosition = 1400;
+    public static int maxPosition = 1500;
     public static int horizPos = 20;
     public static int vertPos = 670;
 

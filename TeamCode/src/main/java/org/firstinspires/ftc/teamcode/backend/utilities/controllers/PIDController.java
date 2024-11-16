@@ -30,7 +30,7 @@ public class PIDController {
     public double update(double currVal, double targetVal) {
         double error = targetVal - currVal;
         double currTime = elapsedTime.seconds();
-        double timePassed = currTime - lastTime;
+        double timePassed = Math.min(1.0, currTime - lastTime);
         integralSum += error * timePassed;
         // TODO see above integralSum = Math.max(-integralLimit, Math.min(integralSum, integralLimit));
         double power = kP * error + kI * integralSum + kD * (lastError - error) * timePassed;

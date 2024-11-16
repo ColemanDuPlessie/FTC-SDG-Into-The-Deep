@@ -72,11 +72,11 @@ public class Teleop extends CommandbasedOpmode {
 
         scheduler.setDefaultCommand(robot.wrist, new ControlWrist(robot.wrist, gamepad));
 
-        gamepad.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON)
+        /*gamepad.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON)
                 .whenReleased(robot.slides::hang);
         gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_STICK_BUTTON)
                 .whenReleased(new RetractHang(robot.slides, timer)); // RetractHang only does things if we're already in hanging position
-
+        */
         if (SetDrivingStyle.memorizedSlidePosition) {
             gamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
                     .whenReleased(() -> robot.slides.setTargetPosition(0.0));
