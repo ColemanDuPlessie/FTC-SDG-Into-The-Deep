@@ -47,7 +47,7 @@ public class DriveConstants {
      */
     public static double WHEEL_RADIUS = 1.8898; // in
     public static double GEAR_RATIO = 1.188; // output (wheel) speed / input (motor) speed
-    public static double TRACK_WIDTH = 16; // in
+    public static double TRACK_WIDTH = 12.43; // in
 
     /*
      * These are the feedforward parameters used to model the drive motor behavior. If you are using
@@ -87,9 +87,9 @@ public class DriveConstants {
      * You are free to raise this on your own if you would like. It is best determined through experimentation.
      
      */
-    public static double MAX_VEL = 22.5; // Previously 65, or 51 with a low battery. Ideal max: 45
-    public static double MAX_ACCEL = 20; // Previously 65.6. Ideal max: 40
-    public static double MAX_ANG_VEL = 3; // Previously 23.8!? Ideal max: 5.14
+    public static double MAX_VEL = 73; // Previously 65, or 51 with a low battery. Ideal max: 45
+    public static double MAX_ACCEL = 30; // Previously 65.6. Ideal max: 40
+    public static double MAX_ANG_VEL = 5.9; // Previously 23.8!? Ideal max: 5.14
     public static double MAX_ANG_ACCEL = 3.5; // Ideal max: around 6?
 
 
