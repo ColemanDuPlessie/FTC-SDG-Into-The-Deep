@@ -56,8 +56,8 @@ public class DualServoRangeTester extends OpMode {
 
     @Override
     public void init() {
-        testServo1 = hardwareMap.get(ServoImpl.class, "TestServo1");
-        testServo2 = hardwareMap.get(ServoImpl.class, "TestServo2");
+        testServo1 = hardwareMap.get(ServoImpl.class, "LeftWristServo");
+        testServo2 = hardwareMap.get(ServoImpl.class, "RightWristServo");
     }
 
     @Override

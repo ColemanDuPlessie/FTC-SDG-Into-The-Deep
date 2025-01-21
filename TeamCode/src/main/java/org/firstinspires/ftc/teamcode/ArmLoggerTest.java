@@ -51,6 +51,6 @@ public class ArmLoggerTest extends OpMode {
     
     @Override
     public void loop() {
-        telemetry.addData("Amr Position", motor.getCurrentPosition());
+        telemetry.addData("Arm Position", motor.getCurrentPosition());
     }
 }

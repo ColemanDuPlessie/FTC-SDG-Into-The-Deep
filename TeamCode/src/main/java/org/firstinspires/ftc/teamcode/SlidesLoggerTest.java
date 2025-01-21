@@ -42,15 +42,18 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 public class SlidesLoggerTest extends OpMode {
 
 
-    DcMotor motor;
+    DcMotor lmotor;
+    DcMotor rmotor;
 
     @Override
     public void init() {
-        motor = hardwareMap.get(DcMotor.class, "SlidesMotor");
+        lmotor = hardwareMap.get(DcMotor.class, "LeftSlidesMotor");
+        rmotor = hardwareMap.get(DcMotor.class, "RightSlidesMotor");
     }
     
     @Override
     public void loop() {
-        telemetry.addData("Slides Position", motor.getCurrentPosition());
+        telemetry.addData("Left Slides Position", lmotor.getCurrentPosition());
+        telemetry.addData("Right Slides Position", rmotor.getCurrentPosition());
     }
 }

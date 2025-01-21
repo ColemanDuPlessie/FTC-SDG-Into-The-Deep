@@ -20,14 +20,14 @@ public class ArmSubsystem extends SubsystemBase implements PositionControlled {
     private PIDController PIDF;
 
     public static int minPosition = 0;
-    public static int maxPosition = 1500;
-    public static int horizPos = 20;
-    public static int vertPos = 670;
+    public static int maxPosition = 2000;
+    public static int horizPos = -1000;
+    public static int vertPos = 500;
 
-    public static double kP = 0.008;
+    public static double kP = 0.004;
     public static double kI = 0.0001;
     public static double kD = 0.0002;
-    public static double kG = 0.10; // 0.65;
+    public static double kG = 0.05; // 0.65;
     public static double powerMultThrottle = 1.0; // 0.5;
 
     private int targetPosition;
@@ -63,6 +63,8 @@ public class ArmSubsystem extends SubsystemBase implements PositionControlled {
     public double getTargetPosition() {return (targetPosition-minPosition)/(double)(maxPosition-minPosition);}
 
     public double getPosition() {return ((double)(motor.getCurrentPosition()-startPosition)-minPosition)/(double)(maxPosition-minPosition);}
+
+    public double getAngleFromVert() {return ((motor.getCurrentPosition()-startPosition)-vertPos)/(vertPos-horizPos)*Math.PI/2;}
 
     public void setTargetPosition(double target) {
         targetPosition = (int)(target * (maxPosition-minPosition) + minPosition);

@@ -48,14 +48,6 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 @TeleOp(name="Teleop (THIS ONE)")
 public class Teleop extends CommandbasedOpmode {
 
-    private void toggleClaw() {
-        if (robot.claw.getPosition() == ClawSubsystem.closedPos) {
-            robot.claw.open();
-        } else {
-            robot.claw.close();
-        }
-    }
-
     @Override
     public void init() {
         robot.init(hardwareMap, true);
@@ -111,9 +103,7 @@ public class Teleop extends CommandbasedOpmode {
                 .whenReleased(() -> robot.arm.incrementTargetPosition(0.05));
 
         gamepad.getGamepadButton(GamepadKeys.Button.A)
-                .whenReleased(this::toggleClaw);
-        gamepad.getGamepadButton(GamepadKeys.Button.B)
-                .whenReleased(robot.claw::waiting);
+                .whenReleased(robot.claw::cycle);
 
     }
 

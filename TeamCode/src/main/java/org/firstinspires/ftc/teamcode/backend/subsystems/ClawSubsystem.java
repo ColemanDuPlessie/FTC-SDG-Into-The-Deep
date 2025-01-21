@@ -44,4 +44,14 @@ public class ClawSubsystem extends SubsystemBase implements PositionControlled {
     public void open() {setTargetPosition(openPos);}
     public void waiting() {setTargetPosition(waitingPos);}
 
+    public void cycle() {
+        if (targetPosition == closedPos) {
+            open();
+        } else if (targetPosition == openPos) {
+            waiting();
+        } else {
+            close();
+        }
+    }
+
 }

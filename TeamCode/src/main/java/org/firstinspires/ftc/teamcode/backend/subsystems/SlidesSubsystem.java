@@ -14,8 +14,8 @@ import org.firstinspires.ftc.teamcode.backend.utilities.controllers.PIDControlle
 @Config
 public class SlidesSubsystem extends SubsystemBase implements PositionControlled {
 
-    public DcMotor motor;
-    public DcMotor followerMotor;
+    public DcMotor leftMotor;
+    public DcMotor rightMotor;
 
     private PIDController PIDF;
 
@@ -27,45 +27,49 @@ public class SlidesSubsystem extends SubsystemBase implements PositionControlled
     public static double kI = 0.0000;
     public static double kD = 0.000065;
     public static double kG = 0.25;
-    public static double maxPower = 1.0;
+    public static double maxPower = 0.6; // TODO this is extra gentle
 
     private int targetPosition;
 
     private int startPosition;
 
-    public void init(ElapsedTime aTimer, HardwareMap ahwMap) {
-        motor = ahwMap.get(DcMotor.class, "SlidesMotor");
-        motor.setDirection(DcMotorSimple.Direction.REVERSE);
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        followerMotor = ahwMap.get(DcMotor.class, "SlidesFollowerMotor");
-        followerMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        followerMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        startPosition = motor.getCurrentPosition();
+    private ArmSubsystem linkedArm;
+
+    public void init(ElapsedTime aTimer, HardwareMap ahwMap, ArmSubsystem a) {
+        leftMotor = ahwMap.get(DcMotor.class, "LeftSlidesMotor");
+        leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightMotor = ahwMap.get(DcMotor.class, "RightSlidesMotor");
+        rightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        startPosition = leftMotor.getCurrentPosition();
         targetPosition = 0;
+        linkedArm = a;
         PIDF = new PIDController(kP, kI, kD, aTimer);
     }
 
-    public void init(ElapsedTime aTimer, HardwareMap ahwMap, boolean isTeleop) {
-        motor = ahwMap.get(DcMotor.class, "SlidesMotor");
-        motor.setDirection(DcMotorSimple.Direction.FORWARD);
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        followerMotor = ahwMap.get(DcMotor.class, "SlidesFollowerMotor");
-        followerMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        followerMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    public void init(ElapsedTime aTimer, HardwareMap ahwMap, boolean isTeleop, ArmSubsystem a) {
+        leftMotor = ahwMap.get(DcMotor.class, "LeftSlidesMotor");
+        leftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightMotor = ahwMap.get(DcMotor.class, "RightSlidesMotor");
+        rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         if (isTeleop) {
             Integer position = AutoToTeleopContainer.getInstance().getSlidesPosition();
             if (position == null) {
-                startPosition = motor.getCurrentPosition();
+                startPosition = leftMotor.getCurrentPosition();
             } else { startPosition = position;}
         } else {
-            startPosition = motor.getCurrentPosition();
+            startPosition = leftMotor.getCurrentPosition();
             AutoToTeleopContainer.getInstance().setSlidesPosition(startPosition);
         }
         targetPosition = 0;
+        linkedArm = a;
         PIDF = new PIDController(kP, kI, kD, aTimer);
     }
 
-    public double getPosition() {return ((double)(motor.getCurrentPosition()-startPosition)-minPosition)/(double)(maxPosition-minPosition);}
+    public double getPosition() {return ((double)(leftMotor.getCurrentPosition()-startPosition)-minPosition)/(double)(maxPosition-minPosition);}
 
     public double getTargetPosition() {return ((double)(targetPosition-startPosition)-minPosition)/(double)(maxPosition-minPosition);}
 
@@ -83,9 +87,9 @@ public class SlidesSubsystem extends SubsystemBase implements PositionControlled
 
     @Override
     public void periodic() {
-        double actualPower = Math.min(maxPower, Math.max(PIDF.update(motor.getCurrentPosition()-startPosition, targetPosition) * maxPower, -maxPower)) + kG;
-        motor.setPower(actualPower);
-        followerMotor.setPower(actualPower);
+        double actualPower = Math.min(maxPower, Math.max(PIDF.update(leftMotor.getCurrentPosition()-startPosition, targetPosition) * maxPower, -maxPower)) + kG; // * Math.cos(linkedArm.getAngleFromVert());
+        leftMotor.setPower(actualPower);
+        rightMotor.setPower(actualPower);
     }
 
 }

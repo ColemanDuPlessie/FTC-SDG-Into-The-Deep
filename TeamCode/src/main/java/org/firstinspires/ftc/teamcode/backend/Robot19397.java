@@ -38,7 +38,7 @@ import org.firstinspires.ftc.teamcode.backend.subsystems.ArmSubsystem;
 import org.firstinspires.ftc.teamcode.backend.subsystems.DrivetrainSubsystem;
 import org.firstinspires.ftc.teamcode.backend.subsystems.ClawSubsystem;
 import org.firstinspires.ftc.teamcode.backend.subsystems.SlidesSubsystem;
-import org.firstinspires.ftc.teamcode.backend.subsystems.WristSubsystem;
+import org.firstinspires.ftc.teamcode.backend.subsystems.DifferentialWristSubsystem;
 
 /**
  * I should probably write this documentation...
@@ -49,7 +49,7 @@ public class Robot19397 extends Robot {
     public final ClawSubsystem claw;
     public final SlidesSubsystem slides;
     public final DrivetrainSubsystem drivetrain;
-    public final WristSubsystem wrist;
+    public final DifferentialWristSubsystem wrist;
     // public final CameraSubsystem camera;
 
     /* local OpMode members. */
@@ -63,7 +63,7 @@ public class Robot19397 extends Robot {
         this.arm = new ArmSubsystem();
         this.claw = new ClawSubsystem();
         this.slides = new SlidesSubsystem();
-        this.wrist = new WristSubsystem();
+        this.wrist = new DifferentialWristSubsystem();
         // this.camera = new CameraSubsystem();
     }
 
@@ -81,7 +81,7 @@ public class Robot19397 extends Robot {
         CommandScheduler.getInstance().registerSubsystem(this.arm);
         claw.init(timer, hwMap, isTeleop);
         CommandScheduler.getInstance().registerSubsystem(this.claw);
-        slides.init(timer, hwMap, isTeleop);
+        slides.init(timer, hwMap, isTeleop, arm);
         CommandScheduler.getInstance().registerSubsystem(this.slides);
         wrist.init(timer, hwMap, isTeleop);
         CommandScheduler.getInstance().registerSubsystem(this.wrist);

@@ -2,31 +2,28 @@ package org.firstinspires.ftc.teamcode.backend.commands;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.CommandBase;
-import com.arcrobotics.ftclib.command.button.GamepadButton;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.backend.subsystems.SlidesSubsystem;
-import org.firstinspires.ftc.teamcode.backend.subsystems.WristSubsystem;
-
-import java.util.function.DoubleSupplier;
+import org.firstinspires.ftc.teamcode.backend.subsystems.DifferentialWristSubsystem;
 
 @Config
 public class ControlWrist extends CommandBase {
 
-    public double targetPosition;
+    public double targetRollPosition;
+    public double targetPitchPosition;
     private double maxMoveSpeed = 0.01;
 
-    private WristSubsystem wrist;
+    private DifferentialWristSubsystem wrist;
     private final GamepadEx triggers;
 
 
-    public ControlWrist(WristSubsystem w, GamepadEx triggers) {
+    public ControlWrist(DifferentialWristSubsystem w, GamepadEx triggers) {
         wrist = w;
         addRequirements(w);
         this.triggers = triggers;
-        targetPosition = WristSubsystem.centerPosition;
+        targetRollPosition = DifferentialWristSubsystem.rollCenterPosition;
+        targetPitchPosition = DifferentialWristSubsystem.pitchCenterPosition;
     }
 
     @Override
@@ -36,9 +33,11 @@ public class ControlWrist extends CommandBase {
 
     @Override
     public void execute() {
-        double move_magnitude = (triggers.getButton(GamepadKeys.Button.X) ? 1.0 : 0.0) - (triggers.getButton(GamepadKeys.Button.Y) ? 1.0 : 0.0);
-        targetPosition = Math.max(Math.min(1.0, targetPosition+move_magnitude*maxMoveSpeed), 0.0);
-        wrist.setTargetPosition(targetPosition);
+        double rollMoveMagnitude = (triggers.getButton(GamepadKeys.Button.X) ? 1.0 : 0.0) - (triggers.getButton(GamepadKeys.Button.Y) ? 1.0 : 0.0);
+        double pitchMoveMagnitude = (triggers.getButton(GamepadKeys.Button.LEFT_BUMPER) ? 1.0 : 0.0) - (triggers.getButton(GamepadKeys.Button.RIGHT_BUMPER) ? 1.0 : 0.0);
+        targetPitchPosition = Math.max(Math.min(1.0, targetPitchPosition+pitchMoveMagnitude*maxMoveSpeed), 0.0); // Pitch overrides roll
+        targetRollPosition = Math.max(Math.min(1.0-targetPitchPosition, targetRollPosition+rollMoveMagnitude*maxMoveSpeed), targetPitchPosition);
+        wrist.setTargetPosition(targetRollPosition, targetPitchPosition);
     }
 
 }
