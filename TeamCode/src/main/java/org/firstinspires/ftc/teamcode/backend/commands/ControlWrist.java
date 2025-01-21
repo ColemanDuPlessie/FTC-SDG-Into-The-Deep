@@ -35,8 +35,8 @@ public class ControlWrist extends CommandBase {
     public void execute() {
         double rollMoveMagnitude = (triggers.getButton(GamepadKeys.Button.X) ? 1.0 : 0.0) - (triggers.getButton(GamepadKeys.Button.Y) ? 1.0 : 0.0);
         double pitchMoveMagnitude = (triggers.getButton(GamepadKeys.Button.LEFT_BUMPER) ? 1.0 : 0.0) - (triggers.getButton(GamepadKeys.Button.RIGHT_BUMPER) ? 1.0 : 0.0);
-        targetPitchPosition = Math.max(Math.min(1.0, targetPitchPosition+pitchMoveMagnitude*maxMoveSpeed), 0.0); // Pitch overrides roll
-        targetRollPosition = Math.max(Math.min(Math.min(targetPitchPosition, 1.0-targetPitchPosition), targetRollPosition+rollMoveMagnitude*maxMoveSpeed), Math.max(-targetPitchPosition, -1+targetPitchPosition));
+        targetRollPosition = Math.max(Math.min(1.0, targetRollPosition+pitchMoveMagnitude*maxMoveSpeed), 0.0); // Roll overrides roll
+        targetPitchPosition = Math.max(Math.min(Math.min(targetRollPosition, 1.0-targetRollPosition), targetPitchPosition+rollMoveMagnitude*maxMoveSpeed), Math.max(-targetRollPosition, -1.0+targetRollPosition));
         wrist.setTargetPosition(targetRollPosition, targetPitchPosition);
     }
 

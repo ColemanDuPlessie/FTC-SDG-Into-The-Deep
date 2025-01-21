@@ -19,7 +19,7 @@ public class SlidesSubsystem extends SubsystemBase implements PositionControlled
 
     private PIDController PIDF;
 
-    public static int minPosition = -60; // Added to ensure complete retraction TODO more?
+    public static int minPosition = -60; // Added to ensure complete retraction
     public static int maxPosition = 3750; // TODO
     public static int hangPosition = 2800;
 
@@ -32,7 +32,7 @@ public class SlidesSubsystem extends SubsystemBase implements PositionControlled
     public static double kI = 0.0000;
     public static double kD = 0.000065;
     public static double kG = 0.25;
-    public static double maxPower = 0.6; // TODO this is extra gentle
+    public static double maxPower = 1.0;
 
     private int targetPosition;
 
@@ -48,7 +48,7 @@ public class SlidesSubsystem extends SubsystemBase implements PositionControlled
         rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         startPosition = leftMotor.getCurrentPosition();
-        targetPosition = 0;
+        targetPosition = minPosition;
         linkedArm = a;
         PIDF = new PIDController(kP, kI, kD, aTimer);
     }
@@ -69,7 +69,7 @@ public class SlidesSubsystem extends SubsystemBase implements PositionControlled
             startPosition = leftMotor.getCurrentPosition();
             AutoToTeleopContainer.getInstance().setSlidesPosition(startPosition);
         }
-        targetPosition = 0;
+        targetPosition = minPosition;
         linkedArm = a;
         PIDF = new PIDController(kP, kI, kD, aTimer);
     }
@@ -92,8 +92,17 @@ public class SlidesSubsystem extends SubsystemBase implements PositionControlled
 
     @Override
     public void periodic() {
-        double currentTargetExtension = Math.cos(linkedArm.getTargetPosition())*(minLength+(maxLength-minLength)*getTargetPosition());
-        double actualPower = Math.min(maxPower, Math.max(PIDF.update(leftMotor.getCurrentPosition()-startPosition, targetPosition) * maxPower, -maxPower)) + kG; // * Math.cos(linkedArm.getAngleFromVert());
+        double maxTargetExtension = 999;
+        if (linkedArm.getAngleFromVert() > 0.0) { // Slides are facing forward
+            maxTargetExtension = 1.0/Math.sin(linkedArm.getAngleFromVert())*maxFrontExtension;
+        } else { // Slides are facing backwards
+            maxTargetExtension = 1.0/Math.sin(-linkedArm.getAngleFromVert())*maxRearExtension;
+        }
+        double maxPos = (maxTargetExtension-minLength) / (maxLength-minLength);
+        if (getTargetPosition() > maxPos) {
+            setTargetPosition(maxPos);
+        }
+        double actualPower = Math.min(maxPower, Math.max(PIDF.update(leftMotor.getCurrentPosition()-startPosition, targetPosition) * maxPower, -maxPower)) + kG * Math.cos(linkedArm.getAngleFromVert());
         leftMotor.setPower(actualPower);
         rightMotor.setPower(actualPower);
     }
