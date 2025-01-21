@@ -46,7 +46,7 @@ public class DemoTeleop extends CommandbasedOpmode {
     @Override
     public void init() {
 
-        robot.init(hardwareMap, true);
+        robot.init(hardwareMap, true, telemetry);
         pad1 = new OverrideGamepadWrapper(pad1, pad2, 0.35);
 
     }

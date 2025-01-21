@@ -50,7 +50,7 @@ public class Teleop extends CommandbasedOpmode {
 
     @Override
     public void init() {
-        robot.init(hardwareMap, true);
+        robot.init(hardwareMap, true, telemetry);
     }
 
     private double slidesSetpoint = 0.3;
@@ -113,5 +113,7 @@ public class Teleop extends CommandbasedOpmode {
         telemetry.addData("Slides actual position", robot.slides.getPosition());
         telemetry.addData("Arm target position", robot.arm.getTargetPosition());
         telemetry.addData("Arm actual position", robot.arm.getPosition());
+        telemetry.addData("Wrist target pitch", robot.wrist.getPitchPosition());
+        telemetry.addData("Wrist target roll", robot.wrist.getRollPosition());
     }
 }

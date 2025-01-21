@@ -57,7 +57,7 @@ public class SetDrivingStyle extends CommandbasedOpmode {
         yToggle = new ToggleButton(pad1::getY);
         rToggle = new ToggleButton(pad1::getRightBumper);
 
-        robot.init(hardwareMap, true);
+        robot.init(hardwareMap, true, telemetry);
     }
 
     @Override

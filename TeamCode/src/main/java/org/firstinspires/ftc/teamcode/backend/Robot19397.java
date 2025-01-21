@@ -34,6 +34,7 @@ import com.arcrobotics.ftclib.command.Robot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.backend.subsystems.ArmSubsystem;
 import org.firstinspires.ftc.teamcode.backend.subsystems.DrivetrainSubsystem;
 import org.firstinspires.ftc.teamcode.backend.subsystems.ClawSubsystem;
@@ -44,6 +45,8 @@ import org.firstinspires.ftc.teamcode.backend.subsystems.DifferentialWristSubsys
  * I should probably write this documentation...
  */
 public class Robot19397 extends Robot {
+
+    public static Telemetry tele;
 
     public final ArmSubsystem arm;
     public final ClawSubsystem claw;
@@ -68,13 +71,14 @@ public class Robot19397 extends Robot {
     }
 
     /* Initialize standard Hardware interfaces */
-    public void init(HardwareMap hwMap) {
-        this.init(hwMap, false);
+    public void init(HardwareMap hwMap, Telemetry t) {
+        this.init(hwMap, false, t);
     }
 
-    public void init(HardwareMap hwMap, boolean isTeleop) {
+    public void init(HardwareMap hwMap, boolean isTeleop, Telemetry t) {
         // Save reference to Hardware map
         this.hwMap = hwMap;
+        tele = t;
         drivetrain.init(hwMap, isTeleop);
         CommandScheduler.getInstance().registerSubsystem(this.drivetrain);
         arm.init(timer, hwMap, isTeleop);

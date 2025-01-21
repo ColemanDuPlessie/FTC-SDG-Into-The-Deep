@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.backend.subsystems;
 
+import static org.firstinspires.ftc.teamcode.backend.Robot19397.tele;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -15,7 +17,7 @@ public class DifferentialWristSubsystem extends SubsystemBase {
     public ServoImpl rightServo;
 
     public static double rollCenterPosition = 0.50;
-    public static double pitchCenterPosition = 0.50;
+    public static double pitchCenterPosition = 0.0;
 
     private double targetRollPosition;
     private double targetPitchPosition;
@@ -38,8 +40,12 @@ public class DifferentialWristSubsystem extends SubsystemBase {
     public void setTargetPosition(double roll, double pitch) {
         targetRollPosition = roll;
         targetPitchPosition = pitch;
-        leftServo.setPosition(targetPitchPosition-targetRollPosition);
-        rightServo.setPosition(1-(targetPitchPosition+targetRollPosition));
+        if (tele != null) {
+            tele.addData("Left wrist servo pos", targetRollPosition-targetPitchPosition);
+            tele.addData("Right wrist servo pos", 1.0-(targetRollPosition+targetPitchPosition));
+        }
+        leftServo.setPosition(targetRollPosition-targetPitchPosition);
+        rightServo.setPosition(1.0-(targetRollPosition+targetPitchPosition));
     }
 
     public void center() {setTargetPosition(rollCenterPosition, pitchCenterPosition);}

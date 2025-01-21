@@ -19,9 +19,14 @@ public class SlidesSubsystem extends SubsystemBase implements PositionControlled
 
     private PIDController PIDF;
 
-    public static int minPosition = -60; // Added to ensure complete retraction
-    public static int maxPosition = 3750; // TODO this isn't all the way up for a hang
-    public static int hangPosition = 2800; // TODO
+    public static int minPosition = -60; // Added to ensure complete retraction TODO more?
+    public static int maxPosition = 3750; // TODO
+    public static int hangPosition = 2800;
+
+    public static double minLength = 13.75;
+    public static double maxLength = 13.75; // TODO
+    public static double maxRearExtension = 9.0;
+    public static double maxFrontExtension = 29.0; // These two values are in inches must sum to <42. 4 in of wiggle room should be enough to account for width and imperfect control systems
 
     public static double kP = 0.007; // TODO tune this
     public static double kI = 0.0000;
@@ -40,7 +45,7 @@ public class SlidesSubsystem extends SubsystemBase implements PositionControlled
         leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightMotor = ahwMap.get(DcMotor.class, "RightSlidesMotor");
-        rightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         startPosition = leftMotor.getCurrentPosition();
         targetPosition = 0;
@@ -50,7 +55,7 @@ public class SlidesSubsystem extends SubsystemBase implements PositionControlled
 
     public void init(ElapsedTime aTimer, HardwareMap ahwMap, boolean isTeleop, ArmSubsystem a) {
         leftMotor = ahwMap.get(DcMotor.class, "LeftSlidesMotor");
-        leftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightMotor = ahwMap.get(DcMotor.class, "RightSlidesMotor");
         rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -87,6 +92,7 @@ public class SlidesSubsystem extends SubsystemBase implements PositionControlled
 
     @Override
     public void periodic() {
+        double currentTargetExtension = Math.cos(linkedArm.getTargetPosition())*(minLength+(maxLength-minLength)*getTargetPosition());
         double actualPower = Math.min(maxPower, Math.max(PIDF.update(leftMotor.getCurrentPosition()-startPosition, targetPosition) * maxPower, -maxPower)) + kG; // * Math.cos(linkedArm.getAngleFromVert());
         leftMotor.setPower(actualPower);
         rightMotor.setPower(actualPower);
