@@ -70,6 +70,10 @@ public class ArmSubsystem extends SubsystemBase implements PositionControlled {
 
     public double getAngleFromVert() {return ((double)(targetPosition-vertPos))/((double)(vertPos-horizPos))*Math.PI/2;}
 
+    public void setAngleFromVert(double angleRadians) {
+        targetPosition = (int)(angleRadians/(Math.PI*2)*4*(vertPos-horizPos)+vertPos);
+    }
+
     public void setTargetPosition(double target) {
         targetPosition = (int)(target * (maxPosition-minPosition) + minPosition);
     }
@@ -77,6 +81,10 @@ public class ArmSubsystem extends SubsystemBase implements PositionControlled {
     public void incrementTargetPosition(double increment) {
         targetPosition += (int)(increment * (maxPosition-minPosition) + minPosition);
         targetPosition = Math.min(Math.max(targetPosition, minPosition), maxPosition);
+    }
+
+    public void vert() {
+        targetPosition = vertPos;
     }
 
     @Override

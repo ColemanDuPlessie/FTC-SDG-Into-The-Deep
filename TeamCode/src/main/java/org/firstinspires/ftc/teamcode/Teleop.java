@@ -34,11 +34,9 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.backend.CommandbasedOpmode;
+import org.firstinspires.ftc.teamcode.backend.commands.ControlHorizArmFromSlides;
 import org.firstinspires.ftc.teamcode.backend.commands.ControlWrist;
 import org.firstinspires.ftc.teamcode.backend.commands.DriveFromGamepad;
-import org.firstinspires.ftc.teamcode.backend.commands.RetractHang;
-import org.firstinspires.ftc.teamcode.backend.subsystems.ClawSubsystem;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 
 /**
@@ -48,13 +46,61 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 @TeleOp(name="Teleop (THIS ONE)")
 public class Teleop extends CommandbasedOpmode {
 
+    public int armState = 1; // , 0 = horiz., 1 = diag., 2 = vert. all the way, 3 = reverse diag. for hang
+
+    private ControlHorizArmFromSlides makeArmHoriz = null;
+
+    public void incrementArmState() {
+        if (armState < 3) {
+            armState++;
+            if (armState == 1) {
+                robot.arm.setTargetPosition(0.5);
+                robot.slides.setTargetPosition(0.3);
+                if (makeArmHoriz != null) {
+                    scheduler.cancel(makeArmHoriz);
+                }
+            } else if (armState == 2) {
+                robot.arm.vert();
+                robot.slides.setTargetPosition(1.0);
+            } else if (armState == 3) {
+                robot.arm.setTargetPosition(0.05);
+                robot.slides.setTargetPosition(0.5);
+            }
+        } else {
+            robot.arm.vert();
+            robot.slides.setTargetPosition(1.0);
+        }
+    }
+
+    public void decrementArmState() {
+        if (armState > 0) {
+            armState--;
+            if (armState == 0) {
+                if (makeArmHoriz == null) {
+                    makeArmHoriz = new ControlHorizArmFromSlides(robot.arm, robot.slides);
+                }
+                scheduler.schedule(makeArmHoriz);
+                robot.slides.setTargetPosition(0.0);
+            } else if (armState == 1) {
+                robot.arm.setTargetPosition(0.5);
+                robot.slides.setTargetPosition(0.3);
+                if (makeArmHoriz != null) {
+                    scheduler.cancel(makeArmHoriz);
+                }
+            } else if (armState == 2) {
+                robot.arm.vert();
+                robot.slides.setTargetPosition(0.4); // Lower, not raise, the slides, because we must be hanging!
+            }
+        } else {
+            scheduler.schedule(makeArmHoriz);
+            robot.slides.setTargetPosition(0.0);
+        }
+    }
+
     @Override
     public void init() {
         robot.init(hardwareMap, true, telemetry);
     }
-
-    private double slidesSetpoint = 0.3;
-    private double slidesSetpointStep = 0.1;
 
     @Override
     public void start() {
@@ -69,38 +115,14 @@ public class Teleop extends CommandbasedOpmode {
         gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_STICK_BUTTON)
                 .whenReleased(new RetractHang(robot.slides, timer)); // RetractHang only does things if we're already in hanging position
         */
-        if (SetDrivingStyle.memorizedSlidePosition) {
-            gamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
-                    .whenReleased(() -> robot.slides.setTargetPosition(0.0));
-            gamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
-                    .whenReleased(() -> robot.slides.setTargetPosition(slidesSetpoint));
-            gamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
-                    .whenReleased(() -> {
-                        slidesSetpoint += slidesSetpointStep;
-                        slidesSetpoint = Math.min(1.0, Math.max(0.3, slidesSetpoint));
-                        robot.slides.setTargetPosition(slidesSetpoint);
-                    });
-            gamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT)
-                    .whenReleased(() -> {
-                        slidesSetpoint -= slidesSetpointStep;
-                        slidesSetpoint = Math.min(1.0, Math.max(0.3, slidesSetpoint));
-                        robot.slides.setTargetPosition(slidesSetpoint);
-                    });
-        } else {
-            gamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
-                    .whenReleased(() -> robot.slides.setTargetPosition(0.0));
-            gamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
-                    .whenReleased(() -> robot.slides.setTargetPosition(0.5));
-            gamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
-                    .whenReleased(() -> robot.slides.incrementTargetPosition(0.1));
-            gamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT)
-                    .whenReleased(() -> robot.slides.incrementTargetPosition(-0.1));
-        }
-
-        gamepad.getGamepadButton(GamepadKeys.Button.B)
-                .whenReleased(() -> robot.arm.incrementTargetPosition(-0.05));
-        gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_STICK_BUTTON)
-                .whenReleased(() -> robot.arm.incrementTargetPosition(0.05));
+        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
+                .whenReleased(this::decrementArmState);
+        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_UP)
+                .whenReleased(this::incrementArmState);
+        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
+                .whenReleased(() -> robot.slides.incrementTargetPosition(0.1));
+        gamepad.getGamepadButton(GamepadKeys.Button.DPAD_LEFT)
+                .whenReleased(() -> robot.slides.incrementTargetPosition(-0.1));
 
         gamepad.getGamepadButton(GamepadKeys.Button.A)
                 .whenReleased(robot.claw::cycle);
