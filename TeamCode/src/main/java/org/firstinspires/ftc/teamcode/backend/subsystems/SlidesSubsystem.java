@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.backend.subsystems;
 
+import static org.firstinspires.ftc.teamcode.backend.Robot19397.tele;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -24,13 +26,13 @@ public class SlidesSubsystem extends SubsystemBase implements PositionControlled
     public static int hangPosition = 2800;
 
     public static double minLength = 13.75;
-    public static double maxLength = 13.75; // TODO
+    public static double maxLength = 39.5; // TODO
     public static double maxRearExtension = 9.0;
     public static double maxFrontExtension = 29.0; // These two values are in inches must sum to <42. 4 in of wiggle room should be enough to account for width and imperfect control systems
 
-    public static double kP = 0.007; // TODO tune this
+    public static double kP = 0.005; // TODO tune this
     public static double kI = 0.0000;
-    public static double kD = 0.000065;
+    public static double kD = 0.00008;
     public static double kG = 0.25;
     public static double maxPower = 1.0;
 
@@ -92,13 +94,17 @@ public class SlidesSubsystem extends SubsystemBase implements PositionControlled
 
     @Override
     public void periodic() {
-        double maxTargetExtension = 999;
+        double maxTargetExtension = 9999;
         if (linkedArm.getAngleFromVert() > 0.0) { // Slides are facing forward
             maxTargetExtension = 1.0/Math.sin(linkedArm.getAngleFromVert())*maxFrontExtension;
-        } else { // Slides are facing backwards
+        } else if (linkedArm.getAngleFromVert() < 0.0) { // Slides are facing backwards
             maxTargetExtension = 1.0/Math.sin(-linkedArm.getAngleFromVert())*maxRearExtension;
         }
         double maxPos = (maxTargetExtension-minLength) / (maxLength-minLength);
+        tele.addData("Max possible extension", maxTargetExtension);
+        tele.addData("(Arm degrees from vertical)", linkedArm.getAngleFromVert()/Math.PI*180);
+        tele.addData("Max slide position", maxPos);
+        tele.addData("Current slide position", getTargetPosition());
         if (getTargetPosition() > maxPos) {
             setTargetPosition(maxPos);
         }

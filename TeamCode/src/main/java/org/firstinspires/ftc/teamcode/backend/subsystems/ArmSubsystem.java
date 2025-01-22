@@ -17,24 +17,27 @@ public class ArmSubsystem extends SubsystemBase implements PositionControlled {
 
     public DcMotor motor;
 
+    private HardwareMap hwMap;
+
     private PIDController PIDF;
 
     public static int minPosition = 0;
     public static int maxPosition = 2000;
-    public static int horizPos = -1000;
-    public static int vertPos = 500;
+    public static int horizPos = -800;
+    public static int vertPos = 600;
 
-    public static double kP = 0.004;
-    public static double kI = 0.0001;
+    public static double kP = 0.003;
+    public static double kI = 0.00005;
     public static double kD = 0.0002;
-    public static double kG = 0.05; // 0.65;
-    public static double powerMultThrottle = 1.0; // 0.5;
+    public static double kG = 0.05; // TODO link to calculated MoI from slides
+    public static double powerMultThrottle = 1.0;
 
     private int targetPosition;
 
     private int startPosition;
 
     public void init(ElapsedTime aTimer, HardwareMap ahwMap) {
+        hwMap = ahwMap;
         motor = ahwMap.get(DcMotor.class, "ArmMotor");
         motor.setDirection(DcMotorSimple.Direction.FORWARD);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -44,6 +47,7 @@ public class ArmSubsystem extends SubsystemBase implements PositionControlled {
     }
 
     public void init(ElapsedTime aTimer, HardwareMap ahwMap, boolean isTeleop) {
+        hwMap = ahwMap;
         motor = ahwMap.get(DcMotor.class, "ArmMotor");
         motor.setDirection(DcMotorSimple.Direction.FORWARD);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -64,7 +68,7 @@ public class ArmSubsystem extends SubsystemBase implements PositionControlled {
 
     public double getPosition() {return ((double)(motor.getCurrentPosition()-startPosition)-minPosition)/(double)(maxPosition-minPosition);}
 
-    public double getAngleFromVert() {return ((motor.getCurrentPosition()-startPosition)-vertPos)/(vertPos-horizPos)*Math.PI/2;}
+    public double getAngleFromVert() {return ((double)(targetPosition-vertPos))/((double)(vertPos-horizPos))*Math.PI/2;}
 
     public void setTargetPosition(double target) {
         targetPosition = (int)(target * (maxPosition-minPosition) + minPosition);
@@ -77,7 +81,11 @@ public class ArmSubsystem extends SubsystemBase implements PositionControlled {
 
     @Override
     public void periodic() {
-        motor.setPower(Math.min(powerMultThrottle, Math.max(PIDF.update(motor.getCurrentPosition()-startPosition, targetPosition) * powerMultThrottle, -powerMultThrottle)));
+        if (motor != null) {
+            motor.setPower(Math.min(powerMultThrottle, Math.max(PIDF.update(motor.getCurrentPosition() - startPosition, targetPosition) * powerMultThrottle, -powerMultThrottle)));
+        } else {
+            motor = hwMap.get(DcMotor.class, "ArmMotor");
+        }
     }
 
 }
