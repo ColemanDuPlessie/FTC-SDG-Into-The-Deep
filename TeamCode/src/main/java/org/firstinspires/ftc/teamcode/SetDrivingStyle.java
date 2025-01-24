@@ -44,17 +44,24 @@ public class SetDrivingStyle extends CommandbasedOpmode {
 
     ToggleButton xToggle;
     ToggleButton yToggle;
+    ToggleButton bToggle;
 
     ToggleButton rToggle;
 
     public static boolean isFieldCentric         = false;
     public static boolean isBlue                 = false;
     public static boolean memorizedSlidePosition = false;
+    public static int autoSecondsDelay = 0;
+    public static boolean shortAuto              = false;
+
+    private boolean dpadDownWasDown = false;
+    private boolean dpadUpWasDown = false;
 
     @Override
     public void init() {
         xToggle = new ToggleButton(pad1::getX);
         yToggle = new ToggleButton(pad1::getY);
+        bToggle = new ToggleButton(pad1::getB);
         rToggle = new ToggleButton(pad1::getRightBumper);
 
         robot.init(hardwareMap, true, telemetry);
@@ -65,10 +72,19 @@ public class SetDrivingStyle extends CommandbasedOpmode {
         isFieldCentric         = xToggle.get();
         isBlue                 = yToggle.get();
         memorizedSlidePosition = rToggle.get();
+        shortAuto              = bToggle.get();
+
+        if (!pad1.getDpadDown() && dpadDownWasDown) {
+            autoSecondsDelay = Math.max(autoSecondsDelay-1, 0);
+        } else if (!pad1.getDpadUp() && dpadUpWasDown) {
+            autoSecondsDelay += 1;
+        }
 
         telemetry.addData("Field Centric?: (toggle with x)", isFieldCentric);
         telemetry.addData("We are on the (toggle with y)", isBlue ? "Blue Alliance" : "Red Alliance");
         telemetry.addData("Slide height is (toggle with r bumper)", memorizedSlidePosition ? "Memorized & Adjustable (WIP)" : "Setpoints");
+        telemetry.addData("Auto type: (toggle with b)", shortAuto ? "No cycles (worse)" : "Cycles (longer)");
+        telemetry.addData("Auto start delay (seconds) (adjust with dpad up/down)", autoSecondsDelay);
     }
 
     @Override

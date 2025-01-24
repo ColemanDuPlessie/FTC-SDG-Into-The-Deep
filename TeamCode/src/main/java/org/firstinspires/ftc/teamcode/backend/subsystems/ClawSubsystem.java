@@ -21,7 +21,7 @@ public class ClawSubsystem extends SubsystemBase implements PositionControlled {
 
     public void init(ElapsedTime aTimer, HardwareMap ahwMap) {
         servo = ahwMap.get(ServoImpl.class, "ClawServo");
-        servo.setPosition(closedPos);
+        setTargetPosition(closedPos);
     }
 
     public void init(ElapsedTime aTimer, HardwareMap ahwMap, boolean isTeleop) {

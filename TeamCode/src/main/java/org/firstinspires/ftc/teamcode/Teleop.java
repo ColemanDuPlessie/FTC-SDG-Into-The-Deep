@@ -29,6 +29,9 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -37,6 +40,7 @@ import org.firstinspires.ftc.teamcode.backend.CommandbasedOpmode;
 import org.firstinspires.ftc.teamcode.backend.commands.ControlHorizArmFromSlides;
 import org.firstinspires.ftc.teamcode.backend.commands.ControlWrist;
 import org.firstinspires.ftc.teamcode.backend.commands.DriveFromGamepad;
+import org.firstinspires.ftc.teamcode.backend.commands.RetractHang;
 
 
 /**
@@ -46,7 +50,7 @@ import org.firstinspires.ftc.teamcode.backend.commands.DriveFromGamepad;
 @TeleOp(name="Teleop (THIS ONE)")
 public class Teleop extends CommandbasedOpmode {
 
-    public int armState = 1; // , 0 = horiz., 1 = diag., 2 = vert. all the way, 3 = reverse diag. for hang
+    public int armState = 2; // , 0 = horiz., 1 = diag., 2 = vert. all the way, 3 = reverse diag. for hang
 
     private ControlHorizArmFromSlides makeArmHoriz = null;
 
@@ -61,14 +65,26 @@ public class Teleop extends CommandbasedOpmode {
                 }
             } else if (armState == 2) {
                 robot.arm.vert();
-                robot.slides.setTargetPosition(1.0);
+                scheduler.schedule(new SequentialCommandGroup(
+                    new WaitCommand(500), new InstantCommand(() -> {
+                        if (robot.arm.getAngleFromVert() < 0.2 && robot.arm.getAngleFromVert() > -0.1) {
+                            robot.slides.setTargetPosition(1.0);
+                        }
+                    })
+                ));
             } else if (armState == 3) {
-                robot.arm.setTargetPosition(0.05);
-                robot.slides.setTargetPosition(0.5);
+                robot.slides.setTargetPosition(0.65);
+                scheduler.schedule(new SequentialCommandGroup(
+                        new WaitCommand(500), new InstantCommand(() -> {
+                    if (robot.slides.getTargetPosition() < 0.7 && robot.slides.getTargetPosition() > 0.6) {
+                        robot.arm.setTargetPosition(0.15);
+                    }
+                })
+                ));
             }
         } else {
-            robot.arm.vert();
-            robot.slides.setTargetPosition(1.0);
+            robot.arm.setTargetPosition(0.15);
+            robot.slides.setTargetPosition(0.65);
         }
     }
 
@@ -77,23 +93,29 @@ public class Teleop extends CommandbasedOpmode {
             armState--;
             if (armState == 0) {
                 if (makeArmHoriz == null) {
-                    makeArmHoriz = new ControlHorizArmFromSlides(robot.arm, robot.slides);
+                    makeArmHoriz = new ControlHorizArmFromSlides(robot.arm, robot.slides, timer);
                 }
-                scheduler.schedule(makeArmHoriz);
-                robot.slides.setTargetPosition(0.0);
+                scheduler.schedule(new SequentialCommandGroup(
+                        new WaitCommand(Math.max(50, (int) robot.slides.getPosition()*1500-150)),
+                        new InstantCommand(() -> scheduler.schedule(makeArmHoriz))
+                ));
+                robot.slides.setTargetPosition(0.1);
             } else if (armState == 1) {
-                robot.arm.setTargetPosition(0.5);
-                robot.slides.setTargetPosition(0.3);
-                if (makeArmHoriz != null) {
-                    scheduler.cancel(makeArmHoriz);
-                }
+                scheduler.schedule(new SequentialCommandGroup(
+                    new WaitCommand(Math.max(50, (int) robot.slides.getPosition()*1000-300)),
+                    new InstantCommand(() -> robot.arm.setTargetPosition(0.5))
+                ));
+                robot.slides.setTargetPosition(0.35);
             } else if (armState == 2) {
-                robot.arm.vert();
-                robot.slides.setTargetPosition(0.4); // Lower, not raise, the slides, because we must be hanging!
+                scheduler.schedule(new RetractHang(robot.slides, timer)); // Lower, not raise, the slides, because we must be hanging!
+                scheduler.schedule(new SequentialCommandGroup(
+                        new WaitCommand(500),
+                        new InstantCommand(robot.arm::vert)
+                ));
             }
         } else {
             scheduler.schedule(makeArmHoriz);
-            robot.slides.setTargetPosition(0.0);
+            robot.slides.setTargetPosition(0.1);
         }
     }
 
@@ -126,6 +148,12 @@ public class Teleop extends CommandbasedOpmode {
 
         gamepad.getGamepadButton(GamepadKeys.Button.A)
                 .whenReleased(robot.claw::cycle);
+
+
+        gamepad.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON)
+                .whenReleased(robot.arm::cheatIncrementStartPos);
+        gamepad.getGamepadButton(GamepadKeys.Button.RIGHT_STICK_BUTTON)
+                .whenReleased(robot.arm::cheatDecrementStartPos);
 
     }
 

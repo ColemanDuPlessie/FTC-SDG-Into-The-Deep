@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.backend.subsystems.SlidesSubsystem;
 @Config
 public class RetractHang extends CommandBase {
 
-    public static double finalPos = 0.2;
+    public static double finalPos = 0.3;
     public static long travelDuration = 2000;
 
     private SlidesSubsystem slides;
@@ -17,6 +17,7 @@ public class RetractHang extends CommandBase {
 
     private boolean isRunning = false;
     private long startMillis;
+    private double startPos;
 
     public RetractHang(SlidesSubsystem s, ElapsedTime timer) {
         slides = s;
@@ -26,21 +27,22 @@ public class RetractHang extends CommandBase {
 
     @Override
     public void initialize() {
-        if (slides.getTargetPosition() > 1.02) { // If we are in hang position
+        if (slides.getTargetPosition() > finalPos) {
             isRunning = true;
-            startMillis = (long)timer.milliseconds();
-            slides.setTargetPosition(0.99);
-        } else { isRunning = false; }
+            startMillis = (long) timer.milliseconds();
+            startPos = slides.getTargetPosition();
+        } else {
+            isRunning = false;
+        }
     }
 
     @Override
     public void execute() {
         long totalElapsedTime = (long)timer.milliseconds()-startMillis;
-        if (slides.getTargetPosition() > 1.02 || !isRunning) {
-            isRunning = false;
+        if (!isRunning) {
             return;
         }
-        double currentTarget = 0.99-((double)totalElapsedTime)/((double)travelDuration)*(0.99-finalPos);
+        double currentTarget = startPos-((double)totalElapsedTime)/((double)travelDuration)*(startPos-finalPos);
         if (currentTarget < finalPos) {
             slides.setTargetPosition(finalPos);
             isRunning = false;

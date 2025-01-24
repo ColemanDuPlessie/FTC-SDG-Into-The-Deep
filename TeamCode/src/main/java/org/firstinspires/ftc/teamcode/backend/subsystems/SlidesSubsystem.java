@@ -29,7 +29,7 @@ public class SlidesSubsystem extends SubsystemBase implements PositionControlled
     public static double maxLength = 39.5;
     public static double endEffectorInset = 4.0;
     public static double maxRearExtension = 12.0;
-    public static double maxFrontExtension = 26.0; // These two values are in inches must sum to <42. 4 in of wiggle room should be enough to account for width and imperfect control systems
+    public static double maxFrontExtension = 23.0; // These two values are in inches must sum to <42. 4 in of wiggle room should be enough to account for width and imperfect control systems
 
     public static double kP = 0.005; // TODO tune this
     public static double kI = 0.0000;

@@ -23,8 +23,8 @@ public class ArmSubsystem extends SubsystemBase implements PositionControlled {
 
     public static int minPosition = 0;
     public static int maxPosition = 2000;
-    public static int horizPos = -800;
-    public static int vertPos = 600;
+    public static int horizPos = -600;
+    public static int vertPos = 550;
 
     public static double kP = 0.003;
     public static double kI = 0.00005;
@@ -42,6 +42,7 @@ public class ArmSubsystem extends SubsystemBase implements PositionControlled {
         motor.setDirection(DcMotorSimple.Direction.FORWARD);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         startPosition = motor.getCurrentPosition();
+        AutoToTeleopContainer.getInstance().setArmPosition(startPosition);
         targetPosition = vertPos;
         PIDF = new ArmPIDFController(kP, kI, kD, aTimer, kG, horizPos, vertPos);
     }
@@ -51,11 +52,8 @@ public class ArmSubsystem extends SubsystemBase implements PositionControlled {
         motor = ahwMap.get(DcMotor.class, "ArmMotor");
         motor.setDirection(DcMotorSimple.Direction.FORWARD);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        if (isTeleop) {
-            Integer position = AutoToTeleopContainer.getInstance().getArmPosition();
-            if (position == null) {
-                startPosition = motor.getCurrentPosition();
-            } else { startPosition = position;}
+        if (isTeleop && AutoToTeleopContainer.getInstance().getArmPosition() != null) {
+            startPosition = AutoToTeleopContainer.getInstance().getArmPosition();
         } else {
             startPosition = motor.getCurrentPosition();
             AutoToTeleopContainer.getInstance().setArmPosition(startPosition);
@@ -69,6 +67,16 @@ public class ArmSubsystem extends SubsystemBase implements PositionControlled {
     public double getPosition() {return ((double)(motor.getCurrentPosition()-startPosition)-minPosition)/(double)(maxPosition-minPosition);}
 
     public double getAngleFromVert() {return ((double)(targetPosition-vertPos))/((double)(vertPos-horizPos))*Math.PI/2;}
+
+    public void cheatIncrementStartPos() {
+        startPosition += 20;
+        AutoToTeleopContainer.getInstance().setArmPosition(startPosition);
+    }
+
+    public void cheatDecrementStartPos() {
+        startPosition -= 20;
+        AutoToTeleopContainer.getInstance().setArmPosition(startPosition);
+    }
 
     public void setAngleFromVert(double angleRadians) {
         targetPosition = (int)(angleRadians/(Math.PI*2)*4*(vertPos-horizPos)+vertPos);
@@ -84,7 +92,7 @@ public class ArmSubsystem extends SubsystemBase implements PositionControlled {
     }
 
     public void vert() {
-        targetPosition = vertPos;
+        setAngleFromVert(0.12); // Yes, this is cheating, but it makes things work out nice.
     }
 
     @Override

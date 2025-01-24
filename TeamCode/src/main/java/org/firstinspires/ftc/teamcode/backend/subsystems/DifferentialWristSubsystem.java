@@ -25,13 +25,13 @@ public class DifferentialWristSubsystem extends SubsystemBase {
     public void init(ElapsedTime aTimer, HardwareMap ahwMap) {
         leftServo = ahwMap.get(ServoImpl.class, "LeftWristServo");
         rightServo = ahwMap.get(ServoImpl.class, "RightWristServo");
-        center();
+        initPos();
     }
 
     public void init(ElapsedTime aTimer, HardwareMap ahwMap, boolean isTeleop) {
         leftServo = ahwMap.get(ServoImpl.class, "LeftWristServo");
         rightServo = ahwMap.get(ServoImpl.class, "RightWristServo");
-        center();
+        initPos();
     }
 
     public double getRollPosition() {return targetRollPosition;}
@@ -50,5 +50,6 @@ public class DifferentialWristSubsystem extends SubsystemBase {
 
     public void center() {setTargetPosition(rollCenterPosition, pitchCenterPosition);}
 
+    public void initPos() {setTargetPosition(rollCenterPosition, pitchCenterPosition-0.2);}
 
 }
