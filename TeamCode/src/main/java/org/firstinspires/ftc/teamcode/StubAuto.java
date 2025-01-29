@@ -52,8 +52,8 @@ import java.util.ArrayList;
  * I should probably document this...
  */
 
-@Autonomous(name="Auto (Yellow-side) (THIS ONE)")
-public class Auto extends CommandbasedOpmode {
+@Autonomous(name="Stub, 1 specimen only auto (specimen side) (THIS ONE)")
+public class StubAuto extends CommandbasedOpmode {
 
     SampleMecanumDrive drive;
 
@@ -62,14 +62,13 @@ public class Auto extends CommandbasedOpmode {
     private static final double REVERSE = Math.toRadians(180);
     private static final double CLOCKWISE90 = Math.toRadians(-90);
 
-    public static double STARTX = -11;
+    public static double STARTX = 11;
     public static double STARTY = -65.5;
     public static double STARTTHETA = CLOCKWISE90;
     public static double DEPOSITY = -37.75;
-    public static double SAMPLEINTAKEX = -54;
-    public static double SAMPLEINTAKEY = -38;
-    public static double PARKX = -20;
-    public static double PARKY = -12;
+    public static double PARKX = 50;
+    public static double PARKY = -58;
+
 
     private ControlHorizArmFromSlides makeArmHoriz = null;
 
@@ -103,60 +102,9 @@ public class Auto extends CommandbasedOpmode {
                 .UNSTABLE_addTemporalMarkerOffset(-1.2, () -> robot.wrist.setTargetPosition(0.0, DifferentialWristSubsystem.rollCenterPosition))
                 .UNSTABLE_addTemporalMarkerOffset(-0.8, () -> robot.slides.setTargetPosition(0.0))
                 .UNSTABLE_addTemporalMarkerOffset(0.25, () -> robot.slides.setTargetPosition(0.2))
-
-                // Intake first sample
-                .UNSTABLE_addTemporalMarkerOffset(0.5, () -> {
-                    scheduler.schedule(makeArmHoriz);
-                    robot.claw.open();
-                    robot.wrist.setTargetPosition(0.6, DifferentialWristSubsystem.rollCenterPosition);
-                })
-                .splineToSplineHeading(new Pose2d(SAMPLEINTAKEX, SAMPLEINTAKEY+3.0, -CLOCKWISE90), REVERSE)
-                .waitSeconds(2)
-                .UNSTABLE_addTemporalMarkerOffset(-1.5, robot.claw::close)
-
-                // Deposit first sample
-                .UNSTABLE_addTemporalMarkerOffset(-0.5, () -> {
-                    scheduler.cancel(makeArmHoriz);
-                    robot.arm.vert();
-                    robot.wrist.setTargetPosition(0.25, DifferentialWristSubsystem.rollCenterPosition);
-                })
-                .UNSTABLE_addTemporalMarkerOffset(0.2, () -> robot.slides.setTargetPosition(1.0))
-                .splineToSplineHeading(new Pose2d(SAMPLEINTAKEX-5, SAMPLEINTAKEY-16.5, REVERSE-CLOCKWISE90/2), REVERSE-CLOCKWISE90/2)
-                .waitSeconds(2.75)
-                .UNSTABLE_addTemporalMarkerOffset(-2.25, () -> robot.wrist.setTargetPosition(0.4, DifferentialWristSubsystem.rollCenterPosition))
-                .UNSTABLE_addTemporalMarkerOffset(-1.5, robot.claw::open)
-                .UNSTABLE_addTemporalMarkerOffset(-1, () -> robot.wrist.setTargetPosition(0.15, DifferentialWristSubsystem.rollCenterPosition))
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.slides.setTargetPosition(0.2))
-                .UNSTABLE_addTemporalMarkerOffset(1.0, () -> scheduler.schedule(makeArmHoriz))
-
-                // Intake second sample
-                .splineToSplineHeading(new Pose2d(SAMPLEINTAKEX-7.25, SAMPLEINTAKEY-6, 0), -CLOCKWISE90*5.0/4.0)
-                .splineToSplineHeading(new Pose2d(SAMPLEINTAKEX-10, SAMPLEINTAKEY+1.5, -CLOCKWISE90), -CLOCKWISE90)
-                .UNSTABLE_addTemporalMarkerOffset(-0.5, () -> robot.wrist.setTargetPosition(0.6, DifferentialWristSubsystem.rollCenterPosition))
-                .UNSTABLE_addTemporalMarkerOffset(0.5, robot.claw::close)
-
-                // Deposit second sample
-                .UNSTABLE_addTemporalMarkerOffset(1.3, () -> {
-                    scheduler.cancel(makeArmHoriz);
-                    robot.arm.vert();
-                    robot.wrist.setTargetPosition(0.25, DifferentialWristSubsystem.rollCenterPosition);
-                })
-                .UNSTABLE_addTemporalMarkerOffset(2.0, () -> robot.slides.setTargetPosition(1.0))
-                .waitSeconds(2.8)
-                .splineToSplineHeading(new Pose2d(SAMPLEINTAKEX-8.25, SAMPLEINTAKEY-4, 0), CLOCKWISE90*3.0/4.0)
-                .splineToSplineHeading(new Pose2d(SAMPLEINTAKEX-5.5, SAMPLEINTAKEY-10.5, REVERSE-CLOCKWISE90/2), REVERSE-CLOCKWISE90/2)
-                .splineToSplineHeading(new Pose2d(SAMPLEINTAKEX-6.5, SAMPLEINTAKEY-19, REVERSE-CLOCKWISE90/2), CLOCKWISE90)
-                .waitSeconds(2.75)
-                .UNSTABLE_addTemporalMarkerOffset(-2.25, () -> robot.wrist.setTargetPosition(0.4, DifferentialWristSubsystem.rollCenterPosition))
-                .UNSTABLE_addTemporalMarkerOffset(-1.5, robot.claw::open)
-                .UNSTABLE_addTemporalMarkerOffset(-1, () -> robot.wrist.setTargetPosition(0.15, DifferentialWristSubsystem.rollCenterPosition))
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.slides.setTargetPosition(0.4))
-                // Park
-                .splineToSplineHeading(new Pose2d(SAMPLEINTAKEX-5.5, (SAMPLEINTAKEY-17.5)*0.75+PARKY*0.25, CLOCKWISE90*5/6), -CLOCKWISE90)
-                .splineToSplineHeading(new Pose2d(PARKX, PARKY, 0), 0)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.arm.setTargetPosition(0.5))
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> robot.wrist.setTargetPosition(0.4, DifferentialWristSubsystem.rollCenterPosition))
-                .waitSeconds(2)
+                .UNSTABLE_addTemporalMarkerOffset(0.75, () -> robot.wrist.center())
+                .splineToConstantHeading(new Vector2d(STARTX, STARTY*0.3+DEPOSITY*0.7), 0)
+                .splineToConstantHeading(new Vector2d(PARKX, PARKY), 0)
                 .build();
     }
 

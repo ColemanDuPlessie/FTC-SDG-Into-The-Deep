@@ -8,19 +8,17 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.ServoImpl;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.backend.utilities.PositionControlled;
-
 @Config
 public class DifferentialWristSubsystem extends SubsystemBase {
 
     public ServoImpl leftServo;
     public ServoImpl rightServo;
 
-    public static double rollCenterPosition = 0.50;
-    public static double pitchCenterPosition = 0.0;
+    public static double pitchCenterPosition = 0.50;
+    public static double rollCenterPosition = 0.0;
 
-    private double targetRollPosition;
     private double targetPitchPosition;
+    private double targetRollPosition;
 
     public void init(ElapsedTime aTimer, HardwareMap ahwMap) {
         leftServo = ahwMap.get(ServoImpl.class, "LeftWristServo");
@@ -34,22 +32,22 @@ public class DifferentialWristSubsystem extends SubsystemBase {
         initPos();
     }
 
-    public double getRollPosition() {return targetRollPosition;}
     public double getPitchPosition() {return targetPitchPosition;}
+    public double getRollPosition() {return targetRollPosition;}
 
-    public void setTargetPosition(double roll, double pitch) {
-        targetRollPosition = roll;
+    public void setTargetPosition(double pitch, double roll) {
         targetPitchPosition = pitch;
+        targetRollPosition = roll;
         if (tele != null) {
-            tele.addData("Left wrist servo pos", targetRollPosition-targetPitchPosition);
-            tele.addData("Right wrist servo pos", 1.0-(targetRollPosition+targetPitchPosition));
+            tele.addData("Left wrist servo pos", targetPitchPosition - targetRollPosition);
+            tele.addData("Right wrist servo pos", 1.0-(targetPitchPosition + targetRollPosition));
         }
-        leftServo.setPosition(targetRollPosition-targetPitchPosition);
-        rightServo.setPosition(1.0-(targetRollPosition+targetPitchPosition));
+        leftServo.setPosition(targetPitchPosition - targetRollPosition);
+        rightServo.setPosition(1.0-(targetPitchPosition + targetRollPosition));
     }
 
-    public void center() {setTargetPosition(rollCenterPosition, pitchCenterPosition);}
+    public void center() {setTargetPosition(pitchCenterPosition, rollCenterPosition);}
 
-    public void initPos() {setTargetPosition(rollCenterPosition, pitchCenterPosition-0.2);}
+    public void initPos() {setTargetPosition(pitchCenterPosition + 0.2, rollCenterPosition);}
 
 }

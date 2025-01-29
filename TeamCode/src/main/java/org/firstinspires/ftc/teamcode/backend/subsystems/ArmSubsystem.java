@@ -52,8 +52,9 @@ public class ArmSubsystem extends SubsystemBase implements PositionControlled {
         motor = ahwMap.get(DcMotor.class, "ArmMotor");
         motor.setDirection(DcMotorSimple.Direction.FORWARD);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        if (isTeleop && AutoToTeleopContainer.getInstance().getArmPosition() != null) {
-            startPosition = AutoToTeleopContainer.getInstance().getArmPosition();
+        Integer armPos = AutoToTeleopContainer.getInstance().getArmPosition();
+        if (isTeleop && armPos != null) {
+            startPosition = armPos;
         } else {
             startPosition = motor.getCurrentPosition();
             AutoToTeleopContainer.getInstance().setArmPosition(startPosition);
