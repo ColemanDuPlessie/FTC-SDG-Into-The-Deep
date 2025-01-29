@@ -90,21 +90,25 @@ public class StubAuto extends CommandbasedOpmode {
         startDepositTraj = drive.trajectorySequenceBuilder(startPose)
 
                 // Deposit specimen
-                .setReversed(true)
                 .UNSTABLE_addTemporalMarkerOffset(0, () -> {
                     robot.arm.setAngleFromVert(-0.08);
                     robot.slides.setTargetPosition(0.35);
                     robot.wrist.setTargetPosition(0.2, DifferentialWristSubsystem.rollCenterPosition);
                 })
                 .splineToConstantHeading(new Vector2d(STARTX, DEPOSITY), STARTTHETA+REVERSE)
-                .setReversed(false)
                 .waitSeconds(1.2)
                 .UNSTABLE_addTemporalMarkerOffset(-1.2, () -> robot.wrist.setTargetPosition(0.0, DifferentialWristSubsystem.rollCenterPosition))
                 .UNSTABLE_addTemporalMarkerOffset(-0.8, () -> robot.slides.setTargetPosition(0.0))
                 .UNSTABLE_addTemporalMarkerOffset(0.25, () -> robot.slides.setTargetPosition(0.2))
                 .UNSTABLE_addTemporalMarkerOffset(0.75, () -> robot.wrist.center())
-                .splineToConstantHeading(new Vector2d(STARTX, STARTY*0.3+DEPOSITY*0.7), 0)
-                .splineToConstantHeading(new Vector2d(PARKX, PARKY), 0)
+                .splineToSplineHeading(new Pose2d(STARTX, STARTY*0.3+DEPOSITY*0.7, 0), 0)
+                .waitSeconds(.1)
+                .splineToSplineHeading(new Pose2d(36, -38, 0), 0)// moving to the side
+                .splineToConstantHeading(new Vector2d(32, -18), -CLOCKWISE90*0.5)//
+                .splineToConstantHeading(new Vector2d(36, -10), -90)
+                .waitSeconds(3)
+                .lineToSplineHeading(new Pose2d(48, -55, 0))
+
                 .build();
     }
 
