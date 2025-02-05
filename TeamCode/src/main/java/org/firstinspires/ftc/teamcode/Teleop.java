@@ -52,9 +52,8 @@ public class Teleop extends CommandbasedOpmode {
 
     public int armState = 2; // , 0 = horiz., 1 = diag., 2 = vert. all the way, 3 = reverse diag. for hang
 
-    public int getArmState() {return armState;}
-
     private ControlHorizArmFromSlides makeArmHoriz = null;
+    private ControlWrist wristCommand = null;
 
     public void incrementArmState() {
         if (armState < 3) {
@@ -67,7 +66,7 @@ public class Teleop extends CommandbasedOpmode {
                 }
                 scheduler.schedule(new SequentialCommandGroup(
                         new WaitCommand(300),
-                        new InstantCommand(() -> robot.wrist.setTargetPosition(0.25, robot.wrist.getRollPosition()))
+                        new InstantCommand(() -> wristCommand.setTargetPitch(0.25))
                 ));
             } else if (armState == 2) {
                 robot.arm.vert();
@@ -78,7 +77,7 @@ public class Teleop extends CommandbasedOpmode {
                         }
                     }),
                     new WaitCommand(300),
-                    new InstantCommand(() -> robot.wrist.setTargetPosition(0.35, robot.wrist.getRollPosition()))
+                    new InstantCommand(() -> wristCommand.setTargetPitch(0.35))
                 ));
             } else if (armState == 3) {
                 robot.slides.setTargetPosition(0.65);
@@ -107,7 +106,7 @@ public class Teleop extends CommandbasedOpmode {
                         new WaitCommand(Math.max(50, (int) robot.slides.getPosition()*1500-150)),
                         new InstantCommand(() -> scheduler.schedule(makeArmHoriz)),
                         new WaitCommand(300),
-                        new InstantCommand(() -> robot.wrist.setTargetPosition(0.6, robot.wrist.getRollPosition()))
+                        new InstantCommand(() -> wristCommand.setTargetPitch(0.6))
                 ));
                 robot.slides.setTargetPosition(0.1);
             } else if (armState == 1) {
@@ -115,7 +114,7 @@ public class Teleop extends CommandbasedOpmode {
                     new WaitCommand(Math.max(50, (int) robot.slides.getPosition()*1000-300)),
                     new InstantCommand(() -> robot.arm.setTargetPosition(0.5)),
                     new WaitCommand(300),
-                    new InstantCommand(() -> robot.wrist.setTargetPosition(0.25, robot.wrist.getRollPosition()))
+                    new InstantCommand(() -> wristCommand.setTargetPitch(0.25))
                 ));
                 robot.slides.setTargetPosition(0.35);
             } else if (armState == 2) {
@@ -129,9 +128,9 @@ public class Teleop extends CommandbasedOpmode {
             scheduler.schedule(makeArmHoriz);
             robot.slides.setTargetPosition(0.1);
             if (robot.wrist.getPitchPosition() > 0.5) {
-                robot.wrist.setTargetPosition(0.25, robot.wrist.getRollPosition());
+                wristCommand.setTargetPitch(0.25);
             } else {
-                robot.wrist.setTargetPosition(0.6, robot.wrist.getRollPosition());
+                wristCommand.setTargetPitch(0.6);
             }
         }
     }
@@ -148,7 +147,9 @@ public class Teleop extends CommandbasedOpmode {
 
         GamepadEx gamepad = new GamepadEx(gamepad1);
 
-        scheduler.setDefaultCommand(robot.wrist, new ControlWrist(robot.wrist, gamepad));
+        wristCommand = new ControlWrist(robot.wrist, gamepad);
+
+        scheduler.setDefaultCommand(robot.wrist, wristCommand);
 
         /*gamepad.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON)
                 .whenReleased(robot.slides::hang);

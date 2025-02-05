@@ -28,6 +28,10 @@ public class ControlWrist extends CommandBase {
         targetRollPosition = DifferentialWristSubsystem.rollCenterPosition;
     }
 
+    public void setTargetPitch(double p) {
+        targetPitchPosition = p;
+    }
+
     @Override
     public void initialize() {
         wrist.center();
