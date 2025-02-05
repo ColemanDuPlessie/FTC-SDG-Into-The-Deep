@@ -7,6 +7,8 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.teamcode.backend.subsystems.DifferentialWristSubsystem;
 
+import java.util.function.IntSupplier;
+
 @Config
 public class ControlWrist extends CommandBase {
 
