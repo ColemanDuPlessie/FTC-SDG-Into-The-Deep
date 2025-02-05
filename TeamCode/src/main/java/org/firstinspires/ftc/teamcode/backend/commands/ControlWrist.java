@@ -29,7 +29,7 @@ public class ControlWrist extends CommandBase {
     }
 
     public void setTargetPitch(double p) {
-        targetPitchPosition = p;
+        // TODO this is an ugly hack targetPitchPosition = p;
     }
 
     @Override
@@ -39,10 +39,10 @@ public class ControlWrist extends CommandBase {
 
     @Override
     public void execute() {
-        double pitchMoveMagnitude = (triggers.getButton(GamepadKeys.Button.X) ? 1.0 : 0.0) - (triggers.getButton(GamepadKeys.Button.Y) ? 1.0 : 0.0);
-        double rollMoveMagnitude = (triggers.getButton(GamepadKeys.Button.RIGHT_BUMPER) ? 1.0 : 0.0) - (triggers.getButton(GamepadKeys.Button.LEFT_BUMPER) ? 1.0 : 0.0);
-        targetPitchPosition = Math.max(Math.min(1.0, targetPitchPosition +rollMoveMagnitude*maxMoveSpeed), 0.0); // Roll overrides roll
-        targetRollPosition = Math.max(Math.min(Math.min(targetPitchPosition, 1.0- targetPitchPosition), targetRollPosition +pitchMoveMagnitude*maxMoveSpeed), Math.max(-targetPitchPosition, -1.0+ targetPitchPosition));
+        double rollMoveMagnitude = (triggers.getButton(GamepadKeys.Button.X) ? 1.0 : 0.0) - (triggers.getButton(GamepadKeys.Button.Y) ? 1.0 : 0.0);
+        double pitchMoveMagnitude = (triggers.getButton(GamepadKeys.Button.RIGHT_BUMPER) ? 1.0 : 0.0) - (triggers.getButton(GamepadKeys.Button.LEFT_BUMPER) ? 1.0 : 0.0);
+        targetPitchPosition = Math.max(Math.min(1.0, targetPitchPosition + pitchMoveMagnitude*maxMoveSpeed), 0.0); // Roll overrides roll
+        targetRollPosition = Math.max(Math.min(Math.min(targetPitchPosition, 1.0- targetPitchPosition), targetRollPosition + rollMoveMagnitude*maxMoveSpeed), Math.max(-targetPitchPosition, -1.0+ targetPitchPosition));
         wrist.setTargetPosition(targetPitchPosition, targetRollPosition);
     }
 
