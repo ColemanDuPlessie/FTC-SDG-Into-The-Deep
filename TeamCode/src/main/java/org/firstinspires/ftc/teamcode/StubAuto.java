@@ -111,7 +111,7 @@ public class StubAuto extends CommandbasedOpmode {
                 .lineToSplineHeading(new Pose2d(48, -55, 0))// push to obs
                 .lineToLinearHeading(new Pose2d(48,-45, -CLOCKWISE90))// back up and turn to collect
                 .waitSeconds(1)
-                //lineToLinearHeading(new Pose2d(48,-56,90))
+                .lineToLinearHeading((new Pose2d(48,-56,-CLOCKWISE90))
                 .build();
     }
 
