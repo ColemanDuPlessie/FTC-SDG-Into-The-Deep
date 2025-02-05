@@ -104,11 +104,13 @@ public class StubAuto extends CommandbasedOpmode {
                 .splineToSplineHeading(new Pose2d(STARTX, STARTY*0.3+DEPOSITY*0.7, 0), 0)
                 .waitSeconds(.1)
                 .splineToSplineHeading(new Pose2d(36, -38, 0), 0)// moving to the side
-                .splineToConstantHeading(new Vector2d(32, -18), -CLOCKWISE90*0.5)//
-                .splineToConstantHeading(new Vector2d(36, -10), -90)
+                .splineToConstantHeading(new Vector2d(32, -18), -CLOCKWISE90*0.45)//getting into position to push
+                .splineToConstantHeading(new Vector2d(36, -10), -90)//in position to push
                 .waitSeconds(3)
-                .lineToSplineHeading(new Pose2d(48, -55, 0))
-
+                .lineToSplineHeading(new Pose2d(48, -55, 0))// push to obs
+                .lineToLinearHeading(new Pose2d(48,-45, 90))// back up and turn to collect
+                .waitSeconds(3)
+                //lineToLinearHeading(new Pose2d(48,-56,90))
                 .build();
     }
 
