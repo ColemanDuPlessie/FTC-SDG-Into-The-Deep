@@ -63,11 +63,11 @@ public class Auto extends CommandbasedOpmode {
     private static final double CLOCKWISE90 = Math.toRadians(-90);
 
     public static double STARTX = -11;
-    public static double STARTY = -65.5;
+    public static double STARTY = -64.5;
     public static double STARTTHETA = CLOCKWISE90;
     public static double DEPOSITY = -37.75;
     public static double SAMPLEINTAKEX = -54;
-    public static double SAMPLEINTAKEY = -38;
+    public static double SAMPLEINTAKEY = -36;
     public static double PARKX = -20;
     public static double PARKY = -12;
 
